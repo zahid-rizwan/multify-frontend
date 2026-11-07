@@ -20,7 +20,7 @@ export default function PdfModal({ resource, onClose, onDownload }) {
 
   const pdfUrl = resource.fileUrl?.startsWith('http')
     ? resource.fileUrl
-    : `http://localhost:5000${resource.fileUrl}`;
+    : `https://multify-backend.vercel.app${resource.fileUrl}`;
 
   const isPyq = resource.docType === 'PYQ';
 
