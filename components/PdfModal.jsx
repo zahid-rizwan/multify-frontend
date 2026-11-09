@@ -20,7 +20,7 @@ export default function PdfModal({ resource, onClose, onDownload }) {
 
   const pdfUrl = resource.fileUrl?.startsWith('http')
     ? resource.fileUrl
-    : `https://multify-backend.vercel.app${resource.fileUrl}`;
+    : resource.fileUrl || `/api/resources/${resource._id}/pdf`;
 
   const isPyq = resource.docType === 'PYQ';
 
@@ -47,7 +47,7 @@ export default function PdfModal({ resource, onClose, onDownload }) {
                   {isPyq ? 'PYQ Paper' : 'Note'}
                 </span>
                 <span className="text-[11px] sm:text-xs text-slate-400 font-medium truncate">
-                  Sem {resource.semester} • {resource.year}
+                  {resource.year}{resource.session ? ` • ${resource.session}` : ''}
                 </span>
               </div>
               <h3 className="text-xs sm:text-base font-bold text-white truncate max-w-xs sm:max-w-md lg:max-w-lg mt-0.5">

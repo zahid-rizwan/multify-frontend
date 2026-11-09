@@ -59,11 +59,6 @@ export default function ResourceCard({ resource, onPreview, onDownload }) {
                 </>
               )}
             </span>
-
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200/60">
-              <Layers className="w-2.5 sm:w-3 h-2.5 sm:h-3 text-slate-400" />
-              Sem {resource.semester}
-            </span>
           </div>
 
           <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-lg bg-slate-50 text-slate-500 border border-slate-100 flex-shrink-0">

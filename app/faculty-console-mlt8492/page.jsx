@@ -49,7 +49,7 @@ export default function AdminDashboardPage() {
   const [title, setTitle] = useState('');
   const [subjectId, setSubjectId] = useState('');
   const [docType, setDocType] = useState('PYQ');
-  const [semester, setSemester] = useState('3');
+  const [semester, setSemester] = useState('');
   const [year, setYear] = useState('2024');
   const [session, setSession] = useState('Annual Exam');
   const [description, setDescription] = useState('');
@@ -60,7 +60,7 @@ export default function AdminDashboardPage() {
   // Add Subject Form State
   const [newSubjName, setNewSubjName] = useState('');
   const [newSubjCode, setNewSubjCode] = useState('');
-  const [newSubjSem, setNewSubjSem] = useState('1');
+  const [newSubjSem, setNewSubjSem] = useState('');
   const [newSubjDesc, setNewSubjDesc] = useState('');
   const [addingSubject, setAddingSubject] = useState(false);
 
@@ -169,7 +169,7 @@ export default function AdminDashboardPage() {
       formData.append('title', title);
       formData.append('subject', subjectId);
       formData.append('docType', docType);
-      formData.append('semester', semester);
+      if (semester) formData.append('semester', semester);
       formData.append('year', year);
       formData.append('session', session);
       formData.append('description', description);
@@ -243,18 +243,20 @@ export default function AdminDashboardPage() {
       setAddingSubject(true);
       const token = localStorage.getItem('mltify_token');
 
+      const bodyObj = {
+        name: newSubjName,
+        code: newSubjCode,
+        description: newSubjDesc,
+      };
+      if (newSubjSem) bodyObj.semester = Number(newSubjSem);
+
       const res = await fetch('/api/subjects', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          name: newSubjName,
-          code: newSubjCode,
-          semester: Number(newSubjSem),
-          description: newSubjDesc,
-        }),
+        body: JSON.stringify(bodyObj),
       });
 
       const data = await res.json();
@@ -264,6 +266,7 @@ export default function AdminDashboardPage() {
 
       setNewSubjName('');
       setNewSubjCode('');
+      setNewSubjSem('');
       setNewSubjDesc('');
       fetchAdminData(token);
       alert('Subject created successfully!');
@@ -271,6 +274,34 @@ export default function AdminDashboardPage() {
       alert(`Error: ${err.message}`);
     } finally {
       setAddingSubject(false);
+    }
+  };
+
+  // Delete Subject
+  const handleDeleteSubject = async (id, subjectName) => {
+    if (!window.confirm(`Are you sure you want to permanently delete subject "${subjectName}"?`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('mltify_token');
+      const res = await fetch(`/api/subjects/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Could not delete subject');
+      }
+
+      setSubjects((prev) => prev.filter((s) => s._id !== id));
+      fetchAdminData(token);
+      alert(`Subject "${subjectName}" deleted successfully!`);
+    } catch (err) {
+      alert(`Deletion error: ${err.message}`);
     }
   };
 
@@ -364,7 +395,7 @@ export default function AdminDashboardPage() {
           <p className="text-3xl font-black text-crimson-600">
             {subjects.length}
           </p>
-          <p className="text-xs text-slate-400 mt-2 font-medium">Semesters 1 to 8</p>
+          <p className="text-xs text-slate-400 mt-2 font-medium">Curriculum Catalog</p>
         </div>
       </div>
 
@@ -415,7 +446,7 @@ export default function AdminDashboardPage() {
               Upload New Academic Resource
             </h2>
             <p className="text-xs sm:text-sm text-slate-500">
-              Attach a verified PDF and tag it with appropriate subject, semester, and examination year metadata.
+              Attach a verified PDF and tag it with appropriate subject, document type, and examination year metadata.
             </p>
           </div>
 
@@ -586,14 +617,14 @@ export default function AdminDashboardPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Semester <span className="text-crimson-500">*</span>
+                  Semester <span className="text-slate-400 font-normal">(Optional)</span>
                 </label>
                 <select
-                  required
                   value={semester}
                   onChange={(e) => setSemester(e.target.value)}
                   className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-teal-500"
                 >
+                  <option value="">None / Optional</option>
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                     <option key={s} value={s}>
                       Semester {s}
@@ -700,7 +731,6 @@ export default function AdminDashboardPage() {
                 <tr>
                   <th className="py-3.5 px-4">Type</th>
                   <th className="py-3.5 px-4">Title & Subject</th>
-                  <th className="py-3.5 px-4">Semester</th>
                   <th className="py-3.5 px-4">Year</th>
                   <th className="py-3.5 px-4">Views</th>
                   <th className="py-3.5 px-4">Downloads</th>
@@ -727,7 +757,6 @@ export default function AdminDashboardPage() {
                         {res.subject?.name || res.subjectName || 'MLT Subject'}
                       </p>
                     </td>
-                    <td className="py-3.5 px-4 font-semibold">Sem {res.semester}</td>
                     <td className="py-3.5 px-4 font-mono font-bold">{res.year}</td>
                     <td className="py-3.5 px-4">{res.viewCount || 0}</td>
                     <td className="py-3.5 px-4 font-bold text-teal-700">
@@ -807,13 +836,14 @@ export default function AdminDashboardPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Semester
+                    Semester <span className="text-slate-400 font-normal">(Optional)</span>
                   </label>
                   <select
                     value={newSubjSem}
                     onChange={(e) => setNewSubjSem(e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-teal-500"
                   >
+                    <option value="">None / Optional</option>
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                       <option key={s} value={s}>
                         Sem {s}
@@ -851,7 +881,7 @@ export default function AdminDashboardPage() {
             <h3 className="text-lg font-bold text-navy-950">Active Curriculum Subjects</h3>
             <div className="divide-y divide-slate-100">
               {subjects.map((s) => (
-                <div key={s._id} className="py-3 flex items-center justify-between">
+                <div key={s._id} className="py-3 flex items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-sm text-navy-950">{s.name}</span>
@@ -860,12 +890,21 @@ export default function AdminDashboardPage() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-500">
-                      Semester {s.semester} • {s.description || 'Core diagnostic subject'}
+                      {s.description || 'Core diagnostic subject'}
                     </p>
                   </div>
-                  <div className="text-xs font-bold text-slate-500">
-                    <span className="text-crimson-600">{s.pyqCount || 0} PYQs</span> •{' '}
-                    <span className="text-teal-700">{s.noteCount || 0} Notes</span>
+                  <div className="flex items-center gap-4 flex-shrink-0">
+                    <div className="text-xs font-bold text-slate-500">
+                      <span className="text-crimson-600">{s.pyqCount || 0} PYQs</span> •{' '}
+                      <span className="text-teal-700">{s.noteCount || 0} Notes</span>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteSubject(s._id, s.name)}
+                      className="p-1.5 text-crimson-500 hover:text-crimson-700 hover:bg-crimson-50 rounded-lg transition"
+                      title="Delete Subject"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               ))}

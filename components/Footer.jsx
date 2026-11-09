@@ -56,8 +56,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/resources?semester=3" className="hover:text-teal-300 transition">
-                  Semester 3 Specializations
+                <Link href="/resources?sort=downloads" className="hover:text-teal-300 transition">
+                  Top Downloaded Papers
                 </Link>
               </li>
             </ul>

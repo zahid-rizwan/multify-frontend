@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Microscope, ArrowRight, Layers, BookOpen, FileText, Sparkles } from 'lucide-react';
+import { Microscope, ArrowRight, BookOpen, FileText, Sparkles } from 'lucide-react';
 import SubjectIcon from '../../components/SubjectIcon';
 
 export default function SubjectsPage() {
@@ -32,7 +32,7 @@ export default function SubjectsPage() {
           Core Medical Laboratory Subjects
         </h1>
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-          Comprehensive question papers, diagnostic test protocols, and high-yield lecture notes structured across semesters.
+          Comprehensive question papers, diagnostic test protocols, and high-yield lecture notes structured by diagnostic domain.
         </p>
       </div>
 
@@ -60,9 +60,6 @@ export default function SubjectsPage() {
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-xl bg-slate-100 text-navy-950 border border-slate-200">
                       {subj.code || 'MLT'}
-                    </span>
-                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200/60">
-                      Semester {subj.semester}
                     </span>
                   </div>
                 </div>

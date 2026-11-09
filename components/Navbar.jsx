@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   FileText,
   BookOpen,
@@ -16,9 +16,12 @@ import {
   GraduationCap,
 } from 'lucide-react';
 
-export default function Navbar() {
+function NavbarContent() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const rawDocType = searchParams?.get('docType') || searchParams?.get('doctype') || '';
+  const currentDocType = rawDocType.toUpperCase();
 
   const navLinks = [
     { name: 'Home', href: '/' },
@@ -29,7 +32,42 @@ export default function Navbar() {
 
   const isActive = (href) => {
     if (href === '/') return pathname === '/';
-    return pathname.startsWith(href);
+    if (href === '/resources?docType=PYQ') {
+      return pathname === '/resources' && currentDocType === 'PYQ';
+    }
+    if (href === '/resources?docType=NOTE') {
+      return pathname === '/resources' && currentDocType === 'NOTE';
+    }
+    if (href === '/subjects') {
+      return pathname.startsWith('/subjects');
+    }
+    return pathname === href;
+  };
+
+  const getActiveClass = (href, active) => {
+    if (!active) {
+      return 'text-slate-600 hover:text-navy-900 hover:bg-white/70';
+    }
+    if (href.includes('docType=PYQ')) {
+      return 'bg-crimson-600 text-white shadow-md font-extrabold';
+    }
+    if (href.includes('docType=NOTE')) {
+      return 'bg-teal-700 text-white shadow-md font-extrabold';
+    }
+    return 'bg-navy-900 text-white shadow-md font-extrabold';
+  };
+
+  const getMobileActiveClass = (href, active) => {
+    if (!active) {
+      return 'text-slate-700 hover:bg-slate-100 hover:text-navy-900';
+    }
+    if (href.includes('docType=PYQ')) {
+      return 'bg-crimson-50 text-crimson-700 font-extrabold border-l-4 border-crimson-600';
+    }
+    if (href.includes('docType=NOTE')) {
+      return 'bg-teal-50 text-teal-800 font-extrabold border-l-4 border-teal-600';
+    }
+    return 'bg-navy-50 text-navy-950 font-extrabold border-l-4 border-navy-900';
   };
 
   return (
@@ -85,20 +123,22 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${
-                  isActive(link.href)
-                    ? 'bg-white text-navy-900 shadow-sm'
-                    : 'text-slate-600 hover:text-navy-900 hover:bg-white/60'
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
+          <nav className="hidden lg:flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60">
+            {navLinks.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${getActiveClass(
+                    link.href,
+                    active
+                  )}`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right Action Buttons */}
@@ -139,18 +179,36 @@ export default function Navbar() {
             <span>Search question papers & notes...</span>
           </Link>
 
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-4 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition"
-            >
-              {link.name}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const active = isActive(link.href);
+            return (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-4 py-3 rounded-xl text-sm transition ${getMobileActiveClass(
+                  link.href,
+                  active
+                )}`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
         </div>
       )}
     </header>
+  );
+}
+
+export default function Navbar() {
+  return (
+    <Suspense
+      fallback={
+        <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 h-20" />
+      }
+    >
+      <NavbarContent />
+    </Suspense>
   );
 }

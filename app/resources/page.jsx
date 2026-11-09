@@ -30,7 +30,6 @@ function ResourcesContent() {
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [subject, setSubject] = useState(searchParams.get('subject') || '');
   const [docType, setDocType] = useState(searchParams.get('docType') || '');
-  const [semester, setSemester] = useState(searchParams.get('semester') || '');
   const [year, setYear] = useState(searchParams.get('year') || '');
   const [sort, setSort] = useState(searchParams.get('sort') || 'newest');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
@@ -45,7 +44,6 @@ function ResourcesContent() {
     setSearch(searchParams.get('search') || '');
     setSubject(searchParams.get('subject') || '');
     setDocType(searchParams.get('docType') || '');
-    setSemester(searchParams.get('semester') || '');
     setYear(searchParams.get('year') || '');
     setSort(searchParams.get('sort') || 'newest');
   }, [searchParams]);
@@ -69,7 +67,6 @@ function ResourcesContent() {
         if (search) params.set('search', search);
         if (subject) params.set('subject', subject);
         if (docType) params.set('docType', docType);
-        if (semester) params.set('semester', semester);
         if (year) params.set('year', year);
         if (sort) params.set('sort', sort);
 
@@ -89,7 +86,7 @@ function ResourcesContent() {
     };
 
     fetchResources();
-  }, [search, subject, docType, semester, year, sort]);
+  }, [search, subject, docType, year, sort]);
 
   const updateFilters = (newFilters) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -107,7 +104,6 @@ function ResourcesContent() {
     setSearch('');
     setSubject('');
     setDocType('');
-    setSemester('');
     setYear('');
     setSort('newest');
     router.push('/resources');
@@ -117,7 +113,7 @@ function ResourcesContent() {
     window.open(`/api/resources/${resource._id}/download`, '_blank');
   };
 
-  const hasActiveFilters = Boolean(search || subject || docType || semester || year);
+  const hasActiveFilters = Boolean(search || subject || docType || year);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -233,8 +229,8 @@ function ResourcesContent() {
           </div>
         </div>
 
-        {/* Dropdowns Row: Subject, Semester, Year */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-100">
+        {/* Dropdowns Row: Subject, Year */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100">
           {/* Subject Dropdown */}
           <div>
             <label className="block text-xs font-bold text-slate-600 mb-1">Filter by Subject</label>
@@ -247,23 +243,6 @@ function ResourcesContent() {
               {subjectsList.map((s) => (
                 <option key={s._id} value={s._id}>
                   {s.name} ({s.code})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Semester Dropdown */}
-          <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1">Filter by Semester</label>
-            <select
-              value={semester}
-              onChange={(e) => updateFilters({ semester: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold py-2.5 px-3 rounded-xl focus:outline-none focus:border-teal-500"
-            >
-              <option value="">All Semesters</option>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-                <option key={sem} value={sem}>
-                  Semester {sem}
                 </option>
               ))}
             </select>
@@ -332,7 +311,7 @@ function ResourcesContent() {
                   <tr>
                     <th className="py-4 px-6">Type</th>
                     <th className="py-4 px-6">Title & Subject</th>
-                    <th className="py-4 px-6">Sem / Year</th>
+                    <th className="py-4 px-6">Exam Year</th>
                     <th className="py-4 px-6">Downloads</th>
                     <th className="py-4 px-6 text-right">Actions</th>
                   </tr>
@@ -362,8 +341,8 @@ function ResourcesContent() {
                           {res.subject?.name || res.subjectName}
                         </p>
                       </td>
-                      <td className="py-4 px-6 font-semibold">
-                        Sem {res.semester} • <span className="font-mono">{res.year}</span>
+                      <td className="py-4 px-6 font-semibold font-mono text-slate-700">
+                        {res.year}
                       </td>
                       <td className="py-4 px-6 font-bold text-slate-700">
                         {res.downloadCount || 0}

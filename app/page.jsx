@@ -47,12 +47,12 @@ export default function HomePage() {
           setSubjects(resSubj.data);
         } else {
           setSubjects([
-            { _id: '1', name: 'Clinical Hematology & Blood Bank', code: 'MLT-301', semester: 3, pyqCount: 12, noteCount: 18, color: '#E11D48' },
-            { _id: '2', name: 'Clinical Biochemistry', code: 'MLT-302', semester: 3, pyqCount: 15, noteCount: 22, color: '#00858F' },
-            { _id: '3', name: 'Medical Microbiology & Mycology', code: 'MLT-401', semester: 4, pyqCount: 10, noteCount: 16, color: '#0F2F57' },
-            { _id: '4', name: 'Histopathology & Cytotechnology', code: 'MLT-402', semester: 4, pyqCount: 9, noteCount: 14, color: '#7C3AED' },
-            { _id: '5', name: 'Immunology & Serology', code: 'MLT-501', semester: 5, pyqCount: 8, noteCount: 11, color: '#059669' },
-            { _id: '6', name: 'Clinical Pathology & Urinalysis', code: 'MLT-201', semester: 2, pyqCount: 14, noteCount: 19, color: '#D97706' },
+            { _id: '1', name: 'Clinical Hematology & Blood Bank', code: 'MLT-301', pyqCount: 12, noteCount: 18, color: '#E11D48' },
+            { _id: '2', name: 'Clinical Biochemistry', code: 'MLT-302', pyqCount: 15, noteCount: 22, color: '#00858F' },
+            { _id: '3', name: 'Medical Microbiology & Mycology', code: 'MLT-401', pyqCount: 10, noteCount: 16, color: '#0F2F57' },
+            { _id: '4', name: 'Histopathology & Cytotechnology', code: 'MLT-402', pyqCount: 9, noteCount: 14, color: '#7C3AED' },
+            { _id: '5', name: 'Immunology & Serology', code: 'MLT-501', pyqCount: 8, noteCount: 11, color: '#059669' },
+            { _id: '6', name: 'Clinical Pathology & Urinalysis', code: 'MLT-201', pyqCount: 14, noteCount: 19, color: '#D97706' },
           ]);
         }
 
@@ -116,7 +116,7 @@ export default function HomePage() {
 
           {/* Subtitle */}
           <p className="max-w-3xl mx-auto text-base sm:text-lg text-slate-600 mb-10 leading-relaxed font-normal">
-            Direct, instant access to official University Previous Year Question Papers (PYQs), lecture guides, and laboratory diagnostic protocols organized subject-wise and semester-wise.
+            Direct, instant access to official University Previous Year Question Papers (PYQs), lecture guides, and laboratory diagnostic protocols organized subject-wise and examination-year-wise.
           </p>
 
           {/* Ultra-Clean Floating Search Box */}
@@ -208,7 +208,7 @@ export default function HomePage() {
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Verified PDFs</p>
             </div>
             <div className="bg-white/80 backdrop-blur p-4 rounded-2xl border border-slate-200/60 shadow-sm">
-              <p className="text-3xl font-black text-teal-600">8 Semesters</p>
+              <p className="text-3xl font-black text-teal-600">All Subjects</p>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">B.Sc & DMLT</p>
             </div>
             <div className="bg-white/80 backdrop-blur p-4 rounded-2xl border border-slate-200/60 shadow-sm">
@@ -262,9 +262,6 @@ export default function HomePage() {
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-xl bg-slate-100 text-navy-950 border border-slate-200">
                       {subj.code || 'MLT'}
-                    </span>
-                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200/60">
-                      Sem {subj.semester}
                     </span>
                   </div>
                 </div>
@@ -354,7 +351,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-lg font-bold text-white mb-2">Subject-Wise Organization</h3>
               <p className="text-sm text-slate-300 leading-relaxed">
-                Filter documents seamlessly by semester and subject code. Easily find Hematology, Biochemistry, and Microbiology files.
+                Filter documents seamlessly by subject code, document type, and exam year. Easily find Hematology, Biochemistry, and Microbiology files.
               </p>
             </div>
 
