@@ -8,6 +8,7 @@ import {
   UploadCloud,
   FileText,
   Trash2,
+  Pencil,
   Eye,
   Download,
   PlusCircle,
@@ -21,6 +22,7 @@ import {
   Sparkles,
   ExternalLink,
   BookOpen,
+  X,
 } from 'lucide-react';
 import PdfModal from '../../components/PdfModal';
 
@@ -63,6 +65,24 @@ export default function AdminDashboardPage() {
   const [newSubjSem, setNewSubjSem] = useState('');
   const [newSubjDesc, setNewSubjDesc] = useState('');
   const [addingSubject, setAddingSubject] = useState(false);
+
+  // Edit Resource State
+  const [editingResource, setEditingResource] = useState(null);
+  const [editResTitle, setEditResTitle] = useState('');
+  const [editResSubject, setEditResSubject] = useState('');
+  const [editResDocType, setEditResDocType] = useState('PYQ');
+  const [editResYear, setEditResYear] = useState('');
+  const [editResSession, setEditResSession] = useState('');
+  const [editResDesc, setEditResDesc] = useState('');
+  const [editResTags, setEditResTags] = useState('');
+  const [savingResource, setSavingResource] = useState(false);
+
+  // Edit Subject State
+  const [editingSubject, setEditingSubject] = useState(null);
+  const [editSubjName, setEditSubjName] = useState('');
+  const [editSubjCode, setEditSubjCode] = useState('');
+  const [editSubjDesc, setEditSubjDesc] = useState('');
+  const [savingSubject, setSavingSubject] = useState(false);
 
   // Auth verification
   useEffect(() => {
@@ -160,6 +180,11 @@ export default function AdminDashboardPage() {
       return;
     }
 
+    if (docType === 'PYQ' && !year) {
+      setUploadMessage({ type: 'error', text: 'Exam Year is required for Previous Year Question (PYQ) papers.' });
+      return;
+    }
+
     try {
       setUploading(true);
       const token = localStorage.getItem('mltify_token');
@@ -170,8 +195,8 @@ export default function AdminDashboardPage() {
       formData.append('subject', subjectId);
       formData.append('docType', docType);
       if (semester) formData.append('semester', semester);
-      formData.append('year', year);
-      formData.append('session', session);
+      if (year) formData.append('year', year);
+      if (session) formData.append('session', session);
       formData.append('description', description);
       formData.append('tags', tags);
 
@@ -224,7 +249,15 @@ export default function AdminDashboardPage() {
         },
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get('content-type') || '';
+      let data = {};
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(text.slice(0, 120) || `Server error (${res.status})`);
+      }
+
       if (!res.ok || !data.success) {
         throw new Error(data.message || 'Could not delete resource');
       }
@@ -233,6 +266,122 @@ export default function AdminDashboardPage() {
       fetchAdminData(token);
     } catch (err) {
       alert(`Deletion error: ${err.message}`);
+    }
+  };
+
+  // Open Edit Resource Modal
+  const handleOpenEditResource = (res) => {
+    setEditingResource(res);
+    setEditResTitle(res.title || '');
+    setEditResSubject(res.subject?._id || res.subject || '');
+    setEditResDocType(res.docType || 'PYQ');
+    setEditResYear(res.year ? String(res.year) : '');
+    setEditResSession(res.session || '');
+    setEditResDesc(res.description || '');
+    setEditResTags(Array.isArray(res.tags) ? res.tags.join(', ') : (res.tags || ''));
+  };
+
+  // Save Edited Resource
+  const handleSaveResource = async (e) => {
+    e.preventDefault();
+    if (!editingResource) return;
+    try {
+      setSavingResource(true);
+      const token = localStorage.getItem('mltify_token');
+
+      const payload = {
+        title: editResTitle,
+        subject: editResSubject,
+        docType: editResDocType,
+        year: editResYear ? Number(editResYear) : undefined,
+        session: editResSession,
+        description: editResDesc,
+        tags: editResTags,
+      };
+
+      const res = await fetch(`/api/resources/${editingResource._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const contentType = res.headers.get('content-type') || '';
+      let data = {};
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(text.slice(0, 120) || `Server error (${res.status})`);
+      }
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update resource');
+      }
+
+      setEditingResource(null);
+      fetchAdminData(token);
+      alert('Resource updated successfully!');
+    } catch (err) {
+      alert(`Update error: ${err.message}`);
+    } finally {
+      setSavingResource(false);
+    }
+  };
+
+  // Open Edit Subject Modal
+  const handleOpenEditSubject = (subj) => {
+    setEditingSubject(subj);
+    setEditSubjName(subj.name || '');
+    setEditSubjCode(subj.code || '');
+    setEditSubjDesc(subj.description || '');
+  };
+
+  // Save Edited Subject
+  const handleSaveSubject = async (e) => {
+    e.preventDefault();
+    if (!editingSubject) return;
+    try {
+      setSavingSubject(true);
+      const token = localStorage.getItem('mltify_token');
+
+      const payload = {
+        name: editSubjName,
+        code: editSubjCode,
+        description: editSubjDesc,
+      };
+
+      const res = await fetch(`/api/subjects/${editingSubject._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const contentType = res.headers.get('content-type') || '';
+      let data = {};
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(text.slice(0, 120) || `Server error (${res.status})`);
+      }
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update subject');
+      }
+
+      setEditingSubject(null);
+      fetchAdminData(token);
+      alert('Subject updated successfully!');
+    } catch (err) {
+      alert(`Update error: ${err.message}`);
+    } finally {
+      setSavingSubject(false);
     }
   };
 
@@ -292,7 +441,15 @@ export default function AdminDashboardPage() {
         },
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get('content-type') || '';
+      let data = {};
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(text.slice(0, 120) || `Server error (${res.status})`);
+      }
+
       if (!res.ok || !data.success) {
         throw new Error(data.message || 'Could not delete subject');
       }
@@ -635,14 +792,15 @@ export default function AdminDashboardPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Exam Year <span className="text-crimson-500">*</span>
+                  Exam Year {docType === 'PYQ' ? <span className="text-crimson-500">*</span> : <span className="text-slate-400 font-normal">(Optional)</span>}
                 </label>
                 <select
-                  required
+                  required={docType === 'PYQ'}
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
                   className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-teal-500"
                 >
+                  <option value="">{docType === 'PYQ' ? 'Select Exam Year' : 'None / Optional'}</option>
                   {[2026, 2025, 2024, 2023, 2022, 2021, 2020].map((y) => (
                     <option key={y} value={y}>
                       {y}
@@ -653,13 +811,13 @@ export default function AdminDashboardPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Session / Type
+                  Session / Type <span className="text-slate-400 font-normal">(Optional)</span>
                 </label>
                 <input
                   type="text"
                   value={session}
                   onChange={(e) => setSession(e.target.value)}
-                  placeholder="e.g. Annual Exam, Winter"
+                  placeholder={docType === 'PYQ' ? 'e.g. Annual Exam' : 'e.g. Lecture Notes, Lab Manual (Optional)'}
                   className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-teal-500"
                 />
               </div>
@@ -757,12 +915,19 @@ export default function AdminDashboardPage() {
                         {res.subject?.name || res.subjectName || 'MLT Subject'}
                       </p>
                     </td>
-                    <td className="py-3.5 px-4 font-mono font-bold">{res.year}</td>
+                    <td className="py-3.5 px-4 font-mono font-bold">{res.year || '—'}</td>
                     <td className="py-3.5 px-4">{res.viewCount || 0}</td>
                     <td className="py-3.5 px-4 font-bold text-teal-700">
                       {res.downloadCount || 0}
                     </td>
                     <td className="py-3.5 px-4 text-right space-x-2">
+                      <button
+                        onClick={() => handleOpenEditResource(res)}
+                        className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition"
+                        title="Edit Resource"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={() => setPreviewResource(res)}
                         className="p-1.5 text-slate-500 hover:text-navy-950 hover:bg-slate-200 rounded-lg transition"
@@ -893,11 +1058,18 @@ export default function AdminDashboardPage() {
                       {s.description || 'Core diagnostic subject'}
                     </p>
                   </div>
-                  <div className="flex items-center gap-4 flex-shrink-0">
-                    <div className="text-xs font-bold text-slate-500">
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="text-xs font-bold text-slate-500 mr-2">
                       <span className="text-crimson-600">{s.pyqCount || 0} PYQs</span> •{' '}
                       <span className="text-teal-700">{s.noteCount || 0} Notes</span>
                     </div>
+                    <button
+                      onClick={() => handleOpenEditSubject(s)}
+                      className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition"
+                      title="Edit Subject"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={() => handleDeleteSubject(s._id, s.name)}
                       className="p-1.5 text-crimson-500 hover:text-crimson-700 hover:bg-crimson-50 rounded-lg transition"
@@ -920,6 +1092,229 @@ export default function AdminDashboardPage() {
           onClose={() => setPreviewResource(null)}
           onDownload={(r) => window.open(`/api/resources/${r._id}/download`, '_blank')}
         />
+      )}
+
+      {/* Edit Subject Modal */}
+      {editingSubject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 border border-slate-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-lg font-black text-navy-950">Edit Course Subject</h3>
+                <p className="text-xs text-slate-500">Update subject naming and course code</p>
+              </div>
+              <button
+                onClick={() => setEditingSubject(null)}
+                className="p-2 text-slate-400 hover:text-navy-950 hover:bg-slate-100 rounded-xl transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSubject} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Subject Name <span className="text-crimson-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editSubjName}
+                  onChange={(e) => setEditSubjName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-teal-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Course Code <span className="text-crimson-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editSubjCode}
+                  onChange={(e) => setEditSubjCode(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-teal-500 uppercase font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Description / Syllabus Summary
+                </label>
+                <textarea
+                  rows={3}
+                  value={editSubjDesc}
+                  onChange={(e) => setEditSubjDesc(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-teal-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setEditingSubject(null)}
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingSubject}
+                  className="px-5 py-2 text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm transition"
+                >
+                  {savingSubject ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Resource Modal */}
+      {editingResource && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-lg font-black text-navy-950">Edit Document Metadata</h3>
+                <p className="text-xs text-slate-500">Update title, type, examination year, and tags</p>
+              </div>
+              <button
+                onClick={() => setEditingResource(null)}
+                className="p-2 text-slate-400 hover:text-navy-950 hover:bg-slate-100 rounded-xl transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveResource} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Document Title <span className="text-crimson-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editResTitle}
+                  onChange={(e) => setEditResTitle(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-teal-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Document Type
+                  </label>
+                  <select
+                    value={editResDocType}
+                    onChange={(e) => setEditResDocType(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-teal-500"
+                  >
+                    <option value="PYQ">Previous Year Question (PYQ)</option>
+                    <option value="NOTE">Subject Lecture Note</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Subject <span className="text-crimson-500">*</span>
+                  </label>
+                  <select
+                    required
+                    value={editResSubject}
+                    onChange={(e) => setEditResSubject(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-teal-500"
+                  >
+                    <option value="">Select Subject</option>
+                    {subjects.map((s) => (
+                      <option key={s._id} value={s._id}>
+                        {s.name} ({s.code})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Exam Year {editResDocType === 'PYQ' ? <span className="text-crimson-500">*</span> : <span className="text-slate-400 font-normal">(Optional)</span>}
+                  </label>
+                  <select
+                    required={editResDocType === 'PYQ'}
+                    value={editResYear}
+                    onChange={(e) => setEditResYear(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-teal-500"
+                  >
+                    <option value="">{editResDocType === 'PYQ' ? 'Select Exam Year' : 'None / Optional'}</option>
+                    {[2026, 2025, 2024, 2023, 2022, 2021, 2020].map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Session / Category <span className="text-slate-400 font-normal">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editResSession}
+                    onChange={(e) => setEditResSession(e.target.value)}
+                    placeholder={editResDocType === 'PYQ' ? 'Annual Exam' : 'e.g. Chapter 3, Lab Manual'}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Description / Topic Summary
+                </label>
+                <textarea
+                  rows={2}
+                  value={editResDesc}
+                  onChange={(e) => setEditResDesc(e.target.value)}
+                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-teal-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Tags (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={editResTags}
+                  onChange={(e) => setEditResTags(e.target.value)}
+                  placeholder="CBC, Anemia, Staining"
+                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-teal-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setEditingResource(null)}
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingResource}
+                  className="px-5 py-2 text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm transition"
+                >
+                  {savingResource ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

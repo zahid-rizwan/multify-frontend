@@ -47,7 +47,7 @@ export default function PdfModal({ resource, onClose, onDownload }) {
                   {isPyq ? 'PYQ Paper' : 'Note'}
                 </span>
                 <span className="text-[11px] sm:text-xs text-slate-400 font-medium truncate">
-                  {resource.year}{resource.session ? ` • ${resource.session}` : ''}
+                  {[resource.year, resource.session].filter(Boolean).join(' • ') || 'Verified Material'}
                 </span>
               </div>
               <h3 className="text-xs sm:text-base font-bold text-white truncate max-w-xs sm:max-w-md lg:max-w-lg mt-0.5">

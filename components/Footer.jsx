@@ -83,7 +83,7 @@ export default function Footer() {
               Academic Standards
             </h4>
             <p className="text-xs text-slate-400 mb-3 leading-relaxed">
-              All question papers and lecture notes follow verified university curriculum syllabi for B.Sc MLT, DMLT, and allied diagnostic disciplines.
+              All question papers and lecture notes follow verified university curriculum syllabi for MLS, MLT, and allied diagnostic disciplines.
             </p>
             <div className="flex items-center gap-2 text-xs text-slate-300 bg-white/5 p-3 rounded-2xl border border-white/10">
               <CheckCircle2 className="w-4 h-4 text-teal-400 flex-shrink-0" />

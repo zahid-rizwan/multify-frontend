@@ -61,9 +61,11 @@ export default function ResourceCard({ resource, onPreview, onDownload }) {
             </span>
           </div>
 
-          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-lg bg-slate-50 text-slate-500 border border-slate-100 flex-shrink-0">
-            {resource.year}
-          </span>
+          {resource.year ? (
+            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-lg bg-slate-50 text-slate-500 border border-slate-100 flex-shrink-0">
+              {resource.year}
+            </span>
+          ) : null}
         </div>
 
         {/* Subject Indicator */}

@@ -1,3 +1,9 @@
+const BACKEND_URL =
+  process.env.BACKEND_URL ||
+  (process.env.NODE_ENV === 'production'
+    ? 'https://mltify.riwaayathreads.com'
+    : 'http://localhost:5000');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -9,11 +15,11 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://multify-backend.vercel.app/api/:path*',
+        destination: `${BACKEND_URL}/api/:path*`,
       },
       {
         source: '/uploads/:path*',
-        destination: 'https://multify-backend.vercel.app/uploads/:path*',
+        destination: `${BACKEND_URL}/uploads/:path*`,
       },
     ];
   },

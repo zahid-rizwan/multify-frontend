@@ -31,6 +31,7 @@ export default function HomePage() {
   const [selectedType, setSelectedType] = useState('ALL');
   const [featuredResources, setFeaturedResources] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [previewResource, setPreviewResource] = useState(null);
 
@@ -59,6 +60,12 @@ export default function HomePage() {
         if (resDocs?.data && resDocs.data.length > 0) {
           setFeaturedResources(resDocs.data);
         }
+
+        if (typeof resDocs?.pagination?.total === 'number') {
+          setTotalCount(resDocs.pagination.total);
+        } else if (Array.isArray(resDocs?.data)) {
+          setTotalCount(resDocs.data.length);
+        }
       } catch (err) {
         console.error('Error fetching home data:', err);
       } finally {
@@ -68,6 +75,14 @@ export default function HomePage() {
 
     fetchData();
   }, []);
+
+  const actualPdfCount =
+    totalCount > 0
+      ? totalCount
+      : subjects.reduce(
+          (sum, s) => sum + (s.totalResources || (s.pyqCount || 0) + (s.noteCount || 0)),
+          0
+        );
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -99,7 +114,7 @@ export default function HomePage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-crimson-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-crimson-500"></span>
             </span>
-            <span>Medical Laboratory Technology Examination Repository</span>
+            <span>Medical Laboratory Science</span>
             <span className="text-slate-300">|</span>
             <span className="text-navy-900 font-extrabold flex items-center gap-1">
               <Sparkles className="w-3.5 h-3.5 text-teal-600" /> Free Open Access
@@ -204,12 +219,16 @@ export default function HomePage() {
           {/* Modern Metrics Row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16 pt-8 border-t border-slate-200/80">
             <div className="bg-white/80 backdrop-blur p-4 rounded-2xl border border-slate-200/60 shadow-sm">
-              <p className="text-3xl font-black text-navy-950">500+</p>
+              <p className="text-3xl font-black text-navy-950">
+                {loading ? '...' : actualPdfCount}
+              </p>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Verified PDFs</p>
             </div>
             <div className="bg-white/80 backdrop-blur p-4 rounded-2xl border border-slate-200/60 shadow-sm">
-              <p className="text-3xl font-black text-teal-600">All Subjects</p>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">B.Sc & DMLT</p>
+              <p className="text-3xl font-black text-teal-600">
+                {subjects.length > 0 ? `${subjects.length} Subjects` : 'All Subjects'}
+              </p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Curriculum</p>
             </div>
             <div className="bg-white/80 backdrop-blur p-4 rounded-2xl border border-slate-200/60 shadow-sm">
               <p className="text-3xl font-black text-crimson-600">100% Free</p>
