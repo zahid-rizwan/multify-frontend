@@ -1,8 +1,8 @@
 const BACKEND_URL =
   process.env.BACKEND_URL ||
-  (process.env.NODE_ENV === 'production'
-    ? 'https://mltify.riwaayathreads.com'
-    : 'http://localhost:5000');
+  (process.env.NODE_ENV === 'development'
+    ? 'http://localhost:5000'
+    : 'https://multify-backend.vercel.app');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
