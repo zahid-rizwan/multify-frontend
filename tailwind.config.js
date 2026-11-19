@@ -8,6 +8,33 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        medora: {
+          teal: {
+            50: '#F2F9F9',
+            100: '#E6F4F2',
+            200: '#CEEAE6',
+            300: '#9ED3CC',
+            400: '#5EB3A9',
+            500: '#1A8288',
+            600: '#127177', // Primary Figma Teal
+            700: '#0F5E63',
+            800: '#0C4B4F',
+            900: '#08373A',
+            950: '#042022',
+          },
+          navy: {
+            950: '#0A1118', // Figma dark section / footer
+            900: '#0D1520',
+            850: '#131E2C',
+            800: '#1A283A',
+            700: '#23364D',
+          },
+          sand: {
+            50: '#FCFCFB',
+            100: '#F5F7F6',
+            200: '#EBF0EE',
+          },
+        },
         navy: {
           950: '#051120',
           900: '#091E38',
@@ -42,6 +69,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+        serif: ['"Newsreader"', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
       boxShadow: {

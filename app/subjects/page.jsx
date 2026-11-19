@@ -22,7 +22,8 @@ export default function SubjectsPage() {
   }, []);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    <div className="bg-[#F4EFE6] min-h-screen py-12 transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto">
         <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200/60 mb-3">
@@ -93,6 +94,7 @@ export default function SubjectsPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }

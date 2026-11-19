@@ -7,6 +7,10 @@ const BACKEND_URL =
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  devIndicators: {
+    buildActivity: false,
+    appIsrStatus: false,
+  },
   images: {
     domains: ['localhost'],
     unoptimized: true,

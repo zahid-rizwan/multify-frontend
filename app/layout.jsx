@@ -3,9 +3,9 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 export const metadata = {
-  title: 'MLTify - Medical Laboratory Technology Study Portal & PYQs',
+  title: 'MLTify — Medical Study Platform | Notes, PYQs & Academic Resources',
   description:
-    'Free previous year question papers (PYQs) and high-yield lecture notes for B.Sc MLT, DMLT, and M.Sc MLT students. Learn, Analyze, and Excel in clinical lab diagnostics.',
+    'Discover thoughtfully organized medical notes, past examination papers, and academic resources designed for healthcare and medical students.',
   icons: {
     icon: '/logo.jpg',
   },
@@ -14,7 +14,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+      <body className="min-h-screen flex flex-col bg-[#F4EFE6] text-slate-900 antialiased font-sans">
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

@@ -1,103 +1,121 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Microscope, Heart, BookOpen, ShieldCheck, Mail, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-navy-950 text-slate-400 pt-16 pb-12 border-t border-white/10 relative overflow-hidden">
-      <div className="absolute left-1/2 -bottom-20 -translate-x-1/2 w-[800px] h-48 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-
+    <footer className="bg-[#0D1520] text-slate-400 pt-16 pb-12 border-t border-white/5 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-          {/* Column 1: Brand */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl overflow-hidden border border-teal-500/40 bg-white p-0.5 shadow-sm">
-                <Image
-                  src="/logo.jpg"
-                  alt="MLTify"
-                  width={44}
-                  height={44}
-                  className="object-cover rounded-[14px]"
-                />
-              </div>
-              <span className="text-2xl font-black text-white tracking-tight">
-                MLT<span className="text-teal-400">ify</span>
-              </span>
+        {/* Brand header */}
+        <div className="mb-12">
+          {/* MLTify Logo & Name */}
+          <div className="flex items-center gap-3">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden border border-white/20 bg-white p-0.5 shadow-sm flex-shrink-0">
+              <Image
+                src="/logo.jpg"
+                alt="MLTify Logo"
+                width={40}
+                height={40}
+                className="object-cover rounded-lg w-full h-full"
+              />
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Simplifying lab learning for Medical Laboratory Technology students across clinical training institutes and universities worldwide.
-            </p>
-            <div className="flex items-center gap-2 text-[10px] text-teal-400 font-extrabold tracking-widest uppercase">
-              <span>LEARN</span> • <span>ANALYZE</span> • <span>PRACTICE</span> • <span>EXCEL</span>
-            </div>
+            <span className="font-black tracking-tight text-xl text-white">
+              MLT<span className="text-[#4EBEB8]">ify</span>
+            </span>
           </div>
 
-          {/* Column 2: Quick Links */}
+          <p className="mt-4 text-sm font-medium text-slate-300">
+            Knowledge That Shapes Care.
+          </p>
+          <p className="text-xs text-slate-400 max-w-sm mt-0.5 leading-relaxed">
+            Thoughtfully organized learning for every medical journey.
+          </p>
+        </div>
+
+        {/* Links Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 sm:gap-12 mb-16">
+          {/* Column 1: Navigate */}
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-teal-400 pl-3">
-              Curriculum Resources
+            <h4 className="text-xs font-bold text-white tracking-wider mb-4">
+              Navigate
             </h4>
-            <ul className="space-y-2.5 text-xs">
+            <ul className="space-y-3 text-xs">
               <li>
-                <Link href="/resources?docType=PYQ" className="hover:text-teal-300 transition">
-                  Previous Year Questions (PYQs)
+                <Link href="/" className="hover:text-white transition">
+                  Home
                 </Link>
               </li>
               <li>
-                <Link href="/resources?docType=NOTE" className="hover:text-teal-300 transition">
-                  Subject Lecture Notes
+                <Link href="/resources" className="hover:text-white transition">
+                  Explore Library
                 </Link>
               </li>
               <li>
-                <Link href="/subjects" className="hover:text-teal-300 transition">
-                  Subject Course Directory
+                <Link href="/about" className="hover:text-white transition">
+                  About
                 </Link>
               </li>
               <li>
-                <Link href="/resources?sort=downloads" className="hover:text-teal-300 transition">
-                  Top Downloaded Papers
+                <Link href="/subjects" className="hover:text-white transition">
+                  Contact
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Core Disciplines */}
+          {/* Column 2: Resources */}
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-crimson-500 pl-3">
-              Core MLT Disciplines
+            <h4 className="text-xs font-bold text-white tracking-wider mb-4">
+              Resources
             </h4>
-            <ul className="space-y-2.5 text-xs">
-              <li className="hover:text-white transition">Clinical Hematology & Blood Banking</li>
-              <li className="hover:text-white transition">Clinical Biochemistry & Enzymology</li>
-              <li className="hover:text-white transition">Medical Microbiology & Mycology</li>
-              <li className="hover:text-white transition">Histotechnology & Cytology</li>
-              <li className="hover:text-white transition">Clinical Pathology & Urinalysis</li>
+            <ul className="space-y-3 text-xs">
+              <li>
+                <Link href="/resources?docType=NOTE" className="hover:text-white transition">
+                  Study Notes
+                </Link>
+              </li>
+              <li>
+                <Link href="/resources?docType=PYQ" className="hover:text-white transition">
+                  Question Papers
+                </Link>
+              </li>
+              <li>
+                <Link href="/resources?docType=REFERENCE" className="hover:text-white transition">
+                  Reference Materials
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Column 4: Student Academic Standards */}
-          <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-teal-400 pl-3">
-              Academic Standards
+          {/* Column 3: Legal */}
+          <div className="col-span-2 sm:col-span-1">
+            <h4 className="text-xs font-bold text-white tracking-wider mb-4">
+              Legal
             </h4>
-            <p className="text-xs text-slate-400 mb-3 leading-relaxed">
-              All question papers and lecture notes follow verified university curriculum syllabi for MLS, MLT, and allied diagnostic disciplines.
-            </p>
-            <div className="flex items-center gap-2 text-xs text-slate-300 bg-white/5 p-3 rounded-2xl border border-white/10">
-              <CheckCircle2 className="w-4 h-4 text-teal-400 flex-shrink-0" />
-              <span>100% Free Open Educational Resource</span>
-            </div>
+            <ul className="space-y-3 text-xs">
+              <li>
+                <span className="hover:text-white transition cursor-pointer">
+                  Privacy Policy
+                </span>
+              </li>
+              <li>
+                <span className="hover:text-white transition cursor-pointer">
+                  Terms & Conditions
+                </span>
+              </li>
+              <li>
+                <span className="hover:text-white transition cursor-pointer">
+                  Educational Disclaimer
+                </span>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© {new Date().getFullYear()} MLTify. Empowering future medical laboratory diagnostic scientists.</p>
-          <div className="flex items-center gap-3">
-            <span className="text-slate-400">Diagnostic Laboratory Academia</span>
-          </div>
+        {/* Bottom Bar without question mark */}
+        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
+          <p>© {new Date().getFullYear()} MLTify. Educational resources for demonstration.</p>
+          <p className="text-slate-400 font-medium">Designed for curious minds in healthcare.</p>
         </div>
       </div>
     </footer>

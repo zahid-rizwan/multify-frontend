@@ -1,37 +1,38 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Search,
   BookOpen,
   FileText,
-  Microscope,
   Sparkles,
   Download,
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
   Layers,
-  FlaskConical,
-  Droplets,
-  Dna,
+  Heart,
+  Stethoscope,
+  Pill,
+  Activity,
+  Microscope,
+  Scan,
+  Compass,
+  FileCheck,
   GraduationCap,
-  TrendingUp,
+  FolderOpen,
+  HelpCircle,
+  Eye,
 } from 'lucide-react';
 import ResourceCard from '../components/ResourceCard';
 import PdfModal from '../components/PdfModal';
-import SubjectIcon from '../components/SubjectIcon';
+import HeroDoctorArch from '../components/HeroDoctorArch';
 
 export default function HomePage() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState('ALL');
   const [featuredResources, setFeaturedResources] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [previewResource, setPreviewResource] = useState(null);
 
@@ -39,32 +40,43 @@ export default function HomePage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [resSubj, resDocs] = await Promise.all([
-          fetch('/api/subjects').then((r) => r.json()).catch(() => ({ data: [] })),
-          fetch('/api/resources?limit=6&sort=newest').then((r) => r.json()).catch(() => ({ data: [] })),
-        ]);
-
-        if (resSubj?.data && resSubj.data.length > 0) {
-          setSubjects(resSubj.data);
-        } else {
-          setSubjects([
-            { _id: '1', name: 'Clinical Hematology & Blood Bank', code: 'MLT-301', pyqCount: 12, noteCount: 18, color: '#E11D48' },
-            { _id: '2', name: 'Clinical Biochemistry', code: 'MLT-302', pyqCount: 15, noteCount: 22, color: '#00858F' },
-            { _id: '3', name: 'Medical Microbiology & Mycology', code: 'MLT-401', pyqCount: 10, noteCount: 16, color: '#0F2F57' },
-            { _id: '4', name: 'Histopathology & Cytotechnology', code: 'MLT-402', pyqCount: 9, noteCount: 14, color: '#7C3AED' },
-            { _id: '5', name: 'Immunology & Serology', code: 'MLT-501', pyqCount: 8, noteCount: 11, color: '#059669' },
-            { _id: '6', name: 'Clinical Pathology & Urinalysis', code: 'MLT-201', pyqCount: 14, noteCount: 19, color: '#D97706' },
-          ]);
-        }
+        const resDocs = await fetch('/api/resources?limit=6&sort=newest')
+          .then((r) => r.json())
+          .catch(() => ({ data: [] }));
 
         if (resDocs?.data && resDocs.data.length > 0) {
           setFeaturedResources(resDocs.data);
-        }
-
-        if (typeof resDocs?.pagination?.total === 'number') {
-          setTotalCount(resDocs.pagination.total);
-        } else if (Array.isArray(resDocs?.data)) {
-          setTotalCount(resDocs.data.length);
+        } else {
+          // Default resources matching Figma desktop design showcase
+          setFeaturedResources([
+            {
+              _id: 'sample-1',
+              title: 'Human Anatomy — Upper Limb',
+              description: 'Sample overview covering bones, muscles, nerves, and clinical anatomy.',
+              subject: { name: 'Anatomy', code: 'ANAT-101' },
+              docType: 'NOTE',
+              year: 'MBBS Year 1',
+              fileSize: 14.8 * 1024 * 1024,
+            },
+            {
+              _id: 'sample-2',
+              title: 'Cardiovascular Physiology Essentials',
+              description: 'Sample study guide to cardiac cycles, pressure changes, and circulation.',
+              subject: { name: 'Physiology', code: 'PHYS-201' },
+              docType: 'NOTE',
+              year: 'Systemic',
+              fileSize: 11.2 * 1024 * 1024,
+            },
+            {
+              _id: 'sample-3',
+              title: 'Autonomic Pharmacology — Quick Review',
+              description: 'Sample framework for comparing autonomic drug classes and actions.',
+              subject: { name: 'Pharmacology', code: 'PHARM-301' },
+              docType: 'PYQ',
+              year: '2024',
+              fileSize: 7.5 * 1024 * 1024,
+            },
+          ]);
         }
       } catch (err) {
         console.error('Error fetching home data:', err);
@@ -76,266 +88,343 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-  const actualPdfCount =
-    totalCount > 0
-      ? totalCount
-      : subjects.reduce(
-          (sum, s) => sum + (s.totalResources || (s.pyqCount || 0) + (s.noteCount || 0)),
-          0
-        );
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    if (searchQuery.trim()) params.set('search', searchQuery.trim());
-    if (selectedType !== 'ALL') params.set('docType', selectedType);
-    router.push(`/resources?${params.toString()}`);
-  };
-
   const handleDownload = async (resource) => {
     try {
+      if (resource._id?.startsWith('sample-')) {
+        alert('This is a sample document for demonstration. Browse the full library for verified downloads.');
+        router.push('/resources');
+        return;
+      }
       window.open(`/api/resources/${resource._id}/download`, '_blank');
     } catch (err) {
       console.error('Download failed:', err);
     }
   };
 
+  // 8 Curated Disciplines matching Figma large screen layout
+  const disciplines = [
+    {
+      id: 'mbbs',
+      name: 'Medicine / MBBS',
+      description: 'Foundational sciences through advanced clinical disciplines.',
+      icon: Heart,
+      href: '/resources?search=Medicine',
+    },
+    {
+      id: 'bds',
+      name: 'Dentistry / BDS',
+      description: 'Oral anatomy, dental sciences, and clinical dentistry.',
+      icon: Activity,
+      href: '/resources?search=Dentistry',
+    },
+    {
+      id: 'nursing',
+      name: 'Nursing',
+      description: 'Patient care, clinical practice, and nursing science.',
+      icon: Stethoscope,
+      href: '/resources?search=Nursing',
+    },
+    {
+      id: 'pharmacy',
+      name: 'Pharmacy',
+      description: 'Pharmacology, pharmaceutics, and medicinal chemistry.',
+      icon: Pill,
+      href: '/resources?search=Pharmacy',
+    },
+    {
+      id: 'physiotherapy',
+      name: 'Physiotherapy',
+      description: 'Movement science, rehabilitation, and therapeutic care.',
+      icon: Compass,
+      href: '/resources?search=Physiotherapy',
+    },
+    {
+      id: 'mlt',
+      name: 'Medical Laboratory Technology',
+      description: 'Diagnostics, pathology techniques, and laboratory practice.',
+      icon: Microscope,
+      href: '/resources?search=Laboratory',
+    },
+    {
+      id: 'radiology',
+      name: 'Radiology & Imaging',
+      description: 'Imaging principles, anatomy, and radiographic practice.',
+      icon: Scan,
+      href: '/resources?search=Radiology',
+    },
+    {
+      id: 'allied',
+      name: 'Other Allied Health Sciences',
+      description: 'Resources for a wide range of healthcare disciplines.',
+      icon: Layers,
+      href: '/resources',
+    },
+  ];
+
   return (
-    <div className="space-y-20 pb-24">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/50 via-white to-slate-50/80 border-b border-slate-200/80 pt-14 pb-20 lg:pt-20 lg:pb-28">
-        {/* Subtle decorative glow spots */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-tr from-teal-200/30 via-teal-100/20 to-crimson-100/20 blur-3xl pointer-events-none -z-10" />
+    <div className="pb-0 overflow-hidden">
+      {/* 1. HERO SECTION (WARM CREAM BACKGROUND #F4EFE6) */}
+      <section className="relative bg-[#F4EFE6] pt-12 pb-20 lg:pt-20 lg:pb-28">
+        {/* Soft background ambient gradient */}
+        <div className="absolute top-0 right-1/4 w-[600px] h-[500px] bg-gradient-to-b from-[#EBF5F3]/60 via-[#F5FAF9]/30 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white border border-teal-500/20 text-teal-800 text-xs font-bold shadow-sm mb-6 hover:border-teal-500/40 transition">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-crimson-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-crimson-500"></span>
-            </span>
-            <span>Medical Laboratory Science</span>
-            <span className="text-slate-300">|</span>
-            <span className="text-navy-900 font-extrabold flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-teal-600" /> Free Open Access
-            </span>
-          </div>
-
-          {/* Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-navy-950 tracking-tight leading-[1.1] mb-6">
-            Simplifying Lab Learning for{' '}
-            <span className="bg-gradient-to-r from-teal-700 via-teal-600 to-cyan-500 bg-clip-text text-transparent">
-              MLT Students
-            </span>
-          </h1>
-
-          {/* Subtitle */}
-          <p className="max-w-3xl mx-auto text-base sm:text-lg text-slate-600 mb-10 leading-relaxed font-normal">
-            Direct, instant access to official University Previous Year Question Papers (PYQs), lecture guides, and laboratory diagnostic protocols organized subject-wise and examination-year-wise.
-          </p>
-
-          {/* Ultra-Clean Floating Search Box */}
-          <div className="max-w-3xl mx-auto">
-            <form
-              onSubmit={handleSearchSubmit}
-              className="bg-white/95 backdrop-blur-xl p-2.5 sm:p-3 rounded-3xl shadow-xl shadow-navy-950/5 border border-slate-200/90 flex flex-col sm:flex-row gap-2.5"
-            >
-              {/* Segmented Category Pill Switcher */}
-              <div className="w-full sm:w-auto grid grid-cols-3 sm:flex bg-slate-100/90 p-1.5 rounded-2xl text-xs font-bold text-slate-600 flex-shrink-0 text-center">
-                <button
-                  type="button"
-                  onClick={() => setSelectedType('ALL')}
-                  className={`py-2 px-3 sm:px-4 rounded-xl transition-all duration-200 ${
-                    selectedType === 'ALL'
-                      ? 'bg-white text-navy-950 shadow-sm'
-                      : 'hover:text-navy-900'
-                  }`}
-                >
-                  All
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedType('PYQ')}
-                  className={`py-2 px-3 sm:px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 ${
-                    selectedType === 'PYQ'
-                      ? 'bg-crimson-600 text-white shadow-sm'
-                      : 'hover:text-navy-900'
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-crimson-300"></span>
-                  <span>PYQs</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedType('NOTE')}
-                  className={`py-2 px-3 sm:px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 ${
-                    selectedType === 'NOTE'
-                      ? 'bg-teal-600 text-white shadow-sm'
-                      : 'hover:text-navy-900'
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-teal-300"></span>
-                  <span>Notes</span>
-                </button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            {/* Left Column (Desktop 7 cols) */}
+            <div className="lg:col-span-7 text-left">
+              {/* Eyebrow Tag */}
+              <div className="inline-flex items-center gap-2 text-xs sm:text-[13px] font-bold text-[#127177] tracking-[0.18em] uppercase mb-6">
+                <span className="w-5 h-[1.5px] bg-[#127177]" />
+                <span>YOUR MEDICAL LEARNING COMPANION</span>
               </div>
 
-              {/* Keyword Input */}
-              <div className="relative flex-1 flex items-center">
-                <Search className="w-5 h-5 text-slate-400 absolute left-3.5 pointer-events-none" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by topic, e.g., Hematology, LFT, Gram Stain, 2024..."
-                  className="w-full pl-11 pr-4 py-2.5 text-sm rounded-2xl bg-transparent focus:outline-none text-navy-950 placeholder-slate-400 font-semibold"
-                />
+              {/* Headline */}
+              <h1 className="text-4xl sm:text-6xl lg:text-[68px] font-black text-[#0D1520] tracking-tight leading-[1.12] mb-6">
+                Your <span className="font-serif italic font-normal text-[#127177]">Medical</span>
+                <br />
+                Journey, Better
+                <br />
+                Connected.
+              </h1>
+
+              {/* Subtitle */}
+              <p className="text-base sm:text-lg text-slate-600 mb-9 leading-relaxed font-normal max-w-xl">
+                Discover thoughtfully organized medical notes, academic resources, and study materials designed to make your learning journey easier.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3.5 mb-10">
+                <Link
+                  href="/resources"
+                  className="px-7 py-3.5 rounded-xl bg-[#127177] hover:bg-[#0E5B60] text-white text-sm font-bold transition shadow-sm hover:shadow-md flex items-center justify-center gap-2 group active:scale-[0.98]"
+                >
+                  <span>Explore study materials</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <a
+                  href="#disciplines"
+                  className="px-7 py-3.5 rounded-xl bg-white border border-[#EAE5DB] hover:border-slate-300 text-[#0D1520] text-sm font-bold transition shadow-xs hover:bg-slate-50 flex items-center justify-center"
+                >
+                  <span>Discover subjects</span>
+                </a>
               </div>
 
-              {/* Search Button */}
-              <button
-                type="submit"
-                className="px-7 py-3 rounded-2xl font-bold text-sm bg-navy-900 hover:bg-navy-800 text-white transition-all shadow-md active:scale-95 flex items-center justify-center gap-2"
-              >
-                <span>Search</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
+              {/* Footnote */}
+              <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                <span className="w-4 h-[1px] bg-slate-300" />
+                <span>One destination. Multiple medical disciplines. Better learning.</span>
+              </div>
+            </div>
 
-            {/* Quick Popular Topic Chips */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-4 text-xs">
-              <span className="text-slate-400 font-medium">Quick search:</span>
-              {['Hematology', 'Biochemistry', 'Microbiology', 'Histopathology', 'Urinalysis'].map((topic) => (
-                <button
-                  key={topic}
-                  onClick={() => router.push(`/resources?search=${topic}`)}
-                  className="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-teal-500 hover:text-teal-700 transition font-medium"
-                >
-                  {topic}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Modern Metrics Row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16 pt-8 border-t border-slate-200/80">
-            <div className="bg-white/80 backdrop-blur p-4 rounded-2xl border border-slate-200/60 shadow-sm">
-              <p className="text-3xl font-black text-navy-950">
-                {loading ? '...' : actualPdfCount}
-              </p>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Verified PDFs</p>
-            </div>
-            <div className="bg-white/80 backdrop-blur p-4 rounded-2xl border border-slate-200/60 shadow-sm">
-              <p className="text-3xl font-black text-teal-600">
-                {subjects.length > 0 ? `${subjects.length} Subjects` : 'All Subjects'}
-              </p>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Curriculum</p>
-            </div>
-            <div className="bg-white/80 backdrop-blur p-4 rounded-2xl border border-slate-200/60 shadow-sm">
-              <p className="text-3xl font-black text-crimson-600">100% Free</p>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">No Paywalls</p>
-            </div>
-            <div className="bg-white/80 backdrop-blur p-4 rounded-2xl border border-slate-200/60 shadow-sm">
-              <p className="text-3xl font-black text-navy-950">Single Click</p>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Direct Download</p>
+            {/* Right Column (Desktop 5 cols): Doctor Arched Hero Visual */}
+            <div className="lg:col-span-5 flex justify-center lg:justify-end">
+              <HeroDoctorArch />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Core Subjects Grid Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-700 mb-1">
-              <Microscope className="w-4 h-4" />
-              <span>Diagnostic Curriculum</span>
+      {/* 2. START HERE: EVERYTHING YOU NEED TO STUDY SMARTER (PURE WHITE BACKGROUND #FFFFFF) */}
+      <section className="bg-white py-16 lg:py-24 border-t border-[#EAE5DB]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 text-left">
+            <div className="text-xs font-bold text-[#127177] tracking-[0.16em] uppercase mb-2">
+              START HERE
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-navy-950">
-              Browse by Medical Laboratory Subject
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0D1520] tracking-tight">
+              Everything You Need to Study Smarter.
             </h2>
+            <p className="text-sm sm:text-base text-slate-600 mt-2 font-normal">
+              Focused pathways for the materials students look for most.
+            </p>
           </div>
-          <Link
-            href="/subjects"
-            className="text-xs sm:text-sm font-bold text-teal-700 hover:text-teal-800 flex items-center gap-1.5 group"
-          >
-            <span>Explore all subjects</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {subjects.slice(0, 6).map((subj) => (
+          {/* 4 Cards Container with Desktop Vertical Dividers */}
+          <div className="bg-[#FAF8F5] rounded-3xl border border-[#EAE5DB] shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#EAE5DB] overflow-hidden">
+            {/* Col 01 */}
             <Link
-              key={subj._id}
-              href={`/resources?subject=${subj._id}`}
-              className="group bg-white p-6 rounded-3xl border border-slate-200/80 hover:border-teal-500/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+              href="/resources?docType=NOTE"
+              className="group p-7 sm:p-8 flex flex-col justify-between hover:bg-white transition duration-200"
             >
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md transition-transform duration-300 group-hover:scale-105"
-                    style={{ backgroundColor: subj.color || '#00858F' }}
-                  >
-                    <SubjectIcon name={subj.name} icon={subj.icon} className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-xl bg-slate-100 text-navy-950 border border-slate-200">
-                      {subj.code || 'MLT'}
-                    </span>
-                  </div>
+                <span className="text-xs font-mono font-bold text-slate-400 block mb-4">01</span>
+                <div className="w-10 h-10 rounded-xl bg-[#E6F4F1] flex items-center justify-center text-[#127177] mb-5">
+                  <BookOpen className="w-5 h-5" />
                 </div>
-
-                <h3 className="text-base font-bold text-navy-950 group-hover:text-teal-700 transition mb-1.5">
-                  {subj.name}
+                <h3 className="text-lg font-bold text-[#0D1520] group-hover:text-[#127177] transition mb-2">
+                  Study Notes
                 </h3>
-                <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">
-                  {subj.description || 'Core theoretical concepts, diagnostic testing protocols, and past question papers.'}
+                <p className="text-xs text-slate-500 leading-relaxed mb-6">
+                  Explore organized subject-wise study notes.
                 </p>
               </div>
-
-              <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-600">
-                <span className="text-crimson-600">
-                  {subj.pyqCount || 0} PYQ Papers
-                </span>
-                <span className="text-teal-700">
-                  {subj.noteCount || 0} Lecture Notes
-                </span>
+              <div className="pt-2">
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#127177] group-hover:translate-x-1.5 transition-all" />
               </div>
             </Link>
-          ))}
+
+            {/* Col 02 */}
+            <Link
+              href="/resources?docType=PYQ"
+              className="group p-7 sm:p-8 flex flex-col justify-between hover:bg-white transition duration-200"
+            >
+              <div>
+                <span className="text-xs font-mono font-bold text-slate-400 block mb-4">02</span>
+                <div className="w-10 h-10 rounded-xl bg-[#E6F4F1] flex items-center justify-center text-[#127177] mb-5">
+                  <HelpCircle className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-[#0D1520] group-hover:text-[#127177] transition mb-2">
+                  Previous Year Questions
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed mb-6">
+                  Practice using previous examination papers.
+                </p>
+              </div>
+              <div className="pt-2">
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#127177] group-hover:translate-x-1.5 transition-all" />
+              </div>
+            </Link>
+
+            {/* Col 03 */}
+            <Link
+              href="/resources?docType=IMPORTANT_QUESTION"
+              className="group p-7 sm:p-8 flex flex-col justify-between hover:bg-white transition duration-200"
+            >
+              <div>
+                <span className="text-xs font-mono font-bold text-slate-400 block mb-4">03</span>
+                <div className="w-10 h-10 rounded-xl bg-[#E6F4F1] flex items-center justify-center text-[#127177] mb-5">
+                  <FileCheck className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-[#0D1520] group-hover:text-[#127177] transition mb-2">
+                  Important Questions
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed mb-6">
+                  Find focused, topic-wise revision prompts.
+                </p>
+              </div>
+              <div className="pt-2">
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#127177] group-hover:translate-x-1.5 transition-all" />
+              </div>
+            </Link>
+
+            {/* Col 04 */}
+            <Link
+              href="/resources?docType=REFERENCE"
+              className="group p-7 sm:p-8 flex flex-col justify-between hover:bg-white transition duration-200"
+            >
+              <div>
+                <span className="text-xs font-mono font-bold text-slate-400 block mb-4">04</span>
+                <div className="w-10 h-10 rounded-xl bg-[#E6F4F1] flex items-center justify-center text-[#127177] mb-5">
+                  <FolderOpen className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-[#0D1520] group-hover:text-[#127177] transition mb-2">
+                  Reference Materials
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed mb-6">
+                  Discover additional academic resources.
+                </p>
+              </div>
+              <div className="pt-2">
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#127177] group-hover:translate-x-1.5 transition-all" />
+              </div>
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Featured Resources Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-crimson-600 mb-1">
-              <Sparkles className="w-4 h-4" />
-              <span>High-Yield Examination Materials</span>
+      {/* 3. ACROSS HEALTHCARE: EXPLORE YOUR FIELD OF MEDICINE (WARM CREAM BACKGROUND #F4EFE6) */}
+      <section id="disciplines" className="bg-[#F4EFE6] py-16 lg:py-24 border-t border-[#EAE5DB]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-12 text-left">
+            <div className="text-xs font-bold text-[#127177] tracking-[0.16em] uppercase mb-2">
+              ACROSS HEALTHCARE
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-navy-950">
-              Latest Question Papers & Notes
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0D1520] tracking-tight">
+              Explore Your Field of Medicine.
             </h2>
+            <p className="text-sm sm:text-base text-slate-600 mt-2 font-normal">
+              Find academic resources organized around your course and area of study.
+            </p>
           </div>
-          <Link
-            href="/resources"
-            className="text-xs sm:text-sm font-bold text-teal-700 hover:text-teal-800 flex items-center gap-1.5 group"
-          >
-            <span>View all repository papers</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
 
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-64 bg-slate-200/60 rounded-3xl animate-pulse" />
-            ))}
+          {/* 8 Disciplines in 4 Columns x 2 Rows on Desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {disciplines.map((d) => {
+              const Icon = d.icon;
+              return (
+                <Link
+                  key={d.id}
+                  href={d.href}
+                  className="group bg-white rounded-2xl border border-slate-200/90 hover:border-[#127177]/40 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                >
+                  {/* Top banner with orbital rings */}
+                  <div className="relative h-32 bg-[#E6F4F1] border-b border-[#D7EFEA] flex items-center justify-center overflow-hidden">
+                    <svg
+                      className="absolute inset-0 w-full h-full text-[#127177]/20 pointer-events-none"
+                      viewBox="0 0 200 120"
+                      fill="none"
+                    >
+                      <ellipse cx="100" cy="60" rx="65" ry="32" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
+                      <ellipse cx="100" cy="60" rx="50" ry="24" stroke="currentColor" strokeWidth="1" />
+                      <circle cx="150" cy="50" r="3" fill="#D97706" opacity="0.6" />
+                    </svg>
+
+                    <div className="relative z-10 w-11 h-11 rounded-full bg-white shadow-xs border border-[#C6E6E0] flex items-center justify-center text-[#127177] group-hover:scale-110 transition-transform">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-5 flex-1 flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold text-[#127177] uppercase tracking-wider block mb-1">
+                        DISCIPLINE
+                      </span>
+                      <h3 className="text-base font-bold text-[#0D1520] group-hover:text-[#127177] transition mb-2">
+                        {d.name}
+                      </h3>
+                      <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                        {d.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 flex items-center gap-1.5 text-xs font-bold text-[#127177] group-hover:translate-x-1 transition-transform">
+                      <span>Explore field</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredResources.map((res) => (
+        </div>
+      </section>
+
+      {/* 4. CURATED LEARNING (DARK NAVY SECTION WITH FULL-WIDTH STACKED ROWS ON DESKTOP) */}
+      <section className="bg-[#0D1520] text-white py-20 lg:py-28 relative overflow-hidden">
+        {/* Soft background ambient glow */}
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-[#127177]/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Desktop 2-column header */}
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+            <div>
+              <div className="text-xs font-bold text-[#4EBEB8] tracking-[0.16em] uppercase mb-2">
+                CURATED LEARNING
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                Learning Resources Worth Exploring.
+              </h2>
+            </div>
+            <p className="text-sm sm:text-base text-slate-400 font-normal max-w-md">
+              A small selection of real, downloadable sample documents that demonstrate the MEDORA study experience.
+            </p>
+          </div>
+
+          {/* Stacked Full-Width Cards */}
+          <div className="space-y-4 mb-10">
+            {featuredResources.slice(0, 3).map((res) => (
               <ResourceCard
                 key={res._id}
                 resource={res}
@@ -344,56 +433,165 @@ export default function HomePage() {
               />
             ))}
           </div>
-        )}
+
+          {/* Bottom link */}
+          <div className="text-left pt-2">
+            <Link
+              href="/resources"
+              className="inline-flex items-center gap-2 text-sm font-bold text-white hover:text-[#4EBEB8] transition group"
+            >
+              <span>Explore the complete library</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+            </Link>
+          </div>
+        </div>
       </section>
 
-      {/* Why MLTify Highlights - Sleek Modern Dark Section */}
-      <section className="bg-navy-950 text-white py-20 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-teal-500/20 text-teal-300 border border-teal-400/30 mb-3">
-              Built for Diagnostic Scientists
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black mb-4">
-              Everything You Need to Ace Your MLT Exams
-            </h2>
-            <p className="text-sm sm:text-base text-slate-400">
-              Designed specifically for laboratory pathology students — no irrelevant general topics, broken links, or paywalls.
-            </p>
+      {/* 5. WHY MEDORA: DESIGNED AROUND THE WAY STUDENTS LEARN (2-COLUMN SPLIT ON DESKTOP) */}
+      <section className="bg-[#EBF2EE] py-20 lg:py-28 border-t border-[#DCE6E1]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+            {/* Left Column (Desktop 5 cols) */}
+            <div className="lg:col-span-5">
+              <div className="text-xs font-bold text-[#127177] tracking-[0.16em] uppercase mb-2">
+                WHY MEDORA
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black text-[#0D1520] tracking-tight leading-tight mb-4">
+                Designed Around the Way Students Learn.
+              </h2>
+              <p className="text-sm sm:text-base text-slate-600 font-normal max-w-sm">
+                Less time searching. More time understanding.
+              </p>
+            </div>
+
+            {/* Right Column (Desktop 7 cols): 2x2 Grid of Cards */}
+            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {/* Card 01 */}
+              <div className="bg-white p-7 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-8">
+                  <span className="text-xs font-mono font-bold text-slate-400">01</span>
+                  <div className="w-9 h-9 rounded-xl bg-[#E6F4F1] flex items-center justify-center text-[#127177]">
+                    <Layers className="w-4 h-4" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-[#0D1520] mb-2">
+                    Organized Learning
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Structured by course, subject, and chapter.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 02 */}
+              <div className="bg-white p-7 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-8">
+                  <span className="text-xs font-mono font-bold text-slate-400">02</span>
+                  <div className="w-9 h-9 rounded-xl bg-[#E6F4F1] flex items-center justify-center text-[#127177]">
+                    <Search className="w-4 h-4" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-[#0D1520] mb-2">
+                    Easy Access
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Find and download materials without unnecessary steps.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 03 */}
+              <div className="bg-white p-7 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-8">
+                  <span className="text-xs font-mono font-bold text-slate-400">03</span>
+                  <div className="w-9 h-9 rounded-xl bg-[#E6F4F1] flex items-center justify-center text-[#127177]">
+                    <GraduationCap className="w-4 h-4" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-[#0D1520] mb-2">
+                    Student Focused
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    A calm academic experience built around student needs.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 04 */}
+              <div className="bg-white p-7 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-8">
+                  <span className="text-xs font-mono font-bold text-slate-400">04</span>
+                  <div className="w-9 h-9 rounded-xl bg-[#E6F4F1] flex items-center justify-center text-[#127177]">
+                    <Stethoscope className="w-4 h-4" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-[#0D1520] mb-2">
+                    Multiple Disciplines
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Discover resources across healthcare courses.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. OUR PURPOSE & PHILOSOPHY QUOTE (50/50 SPLIT CARD ON DESKTOP) */}
+      <section id="purpose" className="bg-[#F4EFE6] py-20 lg:py-28 border-t border-[#EAE5DB]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden border border-[#EAE5DB] shadow-sm items-stretch">
+          {/* Left Half (White Purpose Card) */}
+          <div className="bg-white p-8 sm:p-14 lg:p-16 flex flex-col justify-between">
+            <div>
+              <div className="text-xs font-bold text-[#127177] tracking-[0.16em] uppercase mb-3">
+                OUR PURPOSE
+              </div>
+              <h2 className="text-2xl sm:text-4xl font-black text-[#0D1520] tracking-tight leading-snug mb-5">
+                Making Medical Learning More Accessible.
+              </h2>
+              <p className="text-sm text-slate-600 leading-relaxed font-normal mb-8 max-w-lg">
+                MEDORA brings medical learning resources together in one organized and accessible destination. Our goal is to help students spend less time searching and more time learning.
+              </p>
+            </div>
+
+            <div>
+              <Link
+                href="/resources"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#127177] hover:bg-[#0E5B60] text-white text-xs font-bold transition shadow-xs active:scale-[0.98]"
+              >
+                <span>Explore study library</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur hover:border-teal-500/40 transition duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center mb-6">
-                <FileText className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Subject-Wise Organization</h3>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                Filter documents seamlessly by subject code, document type, and exam year. Easily find Hematology, Biochemistry, and Microbiology files.
-              </p>
+          {/* Right Half (Deep Teal Gradient Quote Card) */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#062F34] via-[#0A4B52] to-[#0E5B63] p-8 sm:p-14 lg:p-16 text-white flex flex-col justify-between">
+            {/* Ambient radial glow */}
+            <div className="absolute top-1/2 right-1/4 w-80 h-80 bg-[#17858D]/30 rounded-full blur-2xl pointer-events-none" />
+
+            {/* Top Star/Sparkle icon & Quote */}
+            <div className="relative z-10">
+              <Sparkles className="w-8 h-8 text-[#EAD096] mb-8" />
+              <blockquote className="font-serif italic text-2xl sm:text-3xl lg:text-4xl leading-snug text-white/95 font-normal tracking-wide">
+                “Knowledge grows when every connection becomes clear.”
+              </blockquote>
             </div>
 
-            <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur hover:border-crimson-500/40 transition duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-crimson-500/20 text-crimson-400 flex items-center justify-center mb-6">
-                <Download className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Direct & Instant Downloads</h3>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                No subscription walls, capture forms, or timers. Preview the PDF right in your browser or click download immediately.
-              </p>
-            </div>
-
-            <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur hover:border-teal-500/40 transition duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center mb-6">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Verified University Past Papers</h3>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                Exam questions and notes are verified and managed by academic administrators with accurate curriculum tags and solutions.
-              </p>
+            {/* Bottom watermark graphic */}
+            <div className="relative z-10 flex justify-end pt-12">
+              <svg className="w-16 h-16 text-white/10" viewBox="0 0 48 48" fill="none">
+                <path d="M24 8v32M12 28l12 12 12-12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
           </div>
+        </div>
         </div>
       </section>
 

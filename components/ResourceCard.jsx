@@ -5,19 +5,13 @@ import {
   FileText,
   Download,
   Eye,
-  Calendar,
-  Layers,
-  Sparkles,
-  ArrowDownToLine,
-  ExternalLink,
-  BookOpen,
 } from 'lucide-react';
 
-export default function ResourceCard({ resource, onPreview, onDownload }) {
+export default function ResourceCard({ resource, onPreview, onDownload, layout = 'stacked' }) {
   const isPyq = resource.docType === 'PYQ';
 
   const formatFileSize = (bytes) => {
-    if (!bytes || bytes === 0) return 'PDF';
+    if (!bytes || bytes === 0) return '2.8 MB';
     const mb = bytes / (1024 * 1024);
     if (mb < 1) {
       return `${(bytes / 1024).toFixed(0)} KB`;
@@ -25,142 +19,78 @@ export default function ResourceCard({ resource, onPreview, onDownload }) {
     return `${mb.toFixed(1)} MB`;
   };
 
+  const subjectName = resource.subject?.name || resource.subjectName || resource.subject || 'Medical Science';
+  const docTypeLabel = resource.categoryTag || (isPyq ? 'PREVIOUS YEAR PAPERS' : (resource.docType === 'IMPORTANT_QUESTION' ? 'IMPORTANT QUESTIONS' : 'STUDY NOTES'));
+
   return (
-    <div className="group bg-white rounded-3xl border border-slate-200/90 hover:border-teal-500/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden relative">
-      {/* Top chromatic accent ribbon */}
-      <div
-        className={`h-1.5 w-full transition-all duration-300 ${
-          isPyq
-            ? 'bg-gradient-to-r from-crimson-600 via-crimson-500 to-rose-400 group-hover:h-2'
-            : 'bg-gradient-to-r from-teal-700 via-teal-600 to-teal-400 group-hover:h-2'
-        }`}
-      />
-
-      <div className="p-4 sm:p-6 flex-1 flex flex-col">
-        {/* Badges Header Row */}
-        <div className="flex items-center justify-between gap-2 mb-3.5">
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-            <span
-              className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-extrabold tracking-wide uppercase transition-colors ${
-                isPyq
-                  ? 'bg-crimson-50 text-crimson-600 border border-crimson-200/80'
-                  : 'bg-teal-50 text-teal-800 border border-teal-200/80'
-              }`}
-            >
-              {isPyq ? (
-                <>
-                  <FileText className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
-                  <span>PYQ Paper</span>
-                </>
-              ) : (
-                <>
-                  <BookOpen className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-teal-600" />
-                  <span>Lecture Note</span>
-                </>
-              )}
-            </span>
-          </div>
-
-          {resource.year ? (
-            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-lg bg-slate-50 text-slate-500 border border-slate-100 flex-shrink-0">
-              {resource.year}
-            </span>
-          ) : null}
+    <div className="bg-white rounded-2xl border border-slate-200/90 hover:border-[#127177]/40 shadow-xs hover:shadow-md transition-all duration-200 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* Left: Icon and Details */}
+      <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
+        {/* PDF File Badge Icon */}
+        <div className="w-12 h-14 rounded-xl bg-[#E8F5F2] border border-[#CDEAE5] flex-shrink-0 flex flex-col items-center justify-center text-[#127177] shadow-xs">
+          <FileText className="w-5 h-5 mb-0.5" />
+          <span className="text-[9px] font-black tracking-wider uppercase">PDF</span>
         </div>
 
-        {/* Subject Indicator */}
-        <div className="flex items-center gap-2 mb-2 min-w-0">
-          <span
-            className="w-2 h-2 rounded-full ring-2 ring-white shadow-sm flex-shrink-0"
-            style={{ backgroundColor: resource.subject?.color || '#00858F' }}
-          />
-          <p className="text-xs font-bold text-teal-800 truncate">
-            {resource.subject?.name || resource.subjectName || 'Medical Lab Technology'}
-          </p>
-          {resource.subject?.code && (
-            <span className="text-[10px] text-slate-400 font-mono flex-shrink-0">
-              ({resource.subject.code})
-            </span>
-          )}
-        </div>
-
-        {/* Resource Title */}
-        <h3
-          onClick={() => onPreview(resource)}
-          className="text-sm sm:text-base font-extrabold text-navy-950 group-hover:text-teal-700 transition cursor-pointer line-clamp-2 leading-snug mb-2"
-          title={resource.title}
-        >
-          {resource.title}
-        </h3>
-
-        {/* Description */}
-        {resource.description && (
-          <p className="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">
-            {resource.description}
-          </p>
-        )}
-
-        {/* Tags / Keywords */}
-        {resource.tags && resource.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-auto pt-3">
-            {resource.tags.slice(0, 3).map((tag, idx) => (
-              <span
-                key={idx}
-                className="text-[10px] font-semibold px-2 py-0.5 bg-slate-100/80 text-slate-600 rounded-md border border-slate-200/50"
-              >
-                #{tag}
-              </span>
-            ))}
-            {resource.tags.length > 3 && (
-              <span className="text-[10px] text-slate-400 font-medium self-center">
-                +{resource.tags.length - 3}
-              </span>
-            )}
+        {/* Text information */}
+        <div className="min-w-0 flex-1">
+          {/* Tag row */}
+          <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold text-[#127177] uppercase tracking-wider mb-1 truncate">
+            <span>{subjectName}</span>
+            <span className="text-slate-300">•</span>
+            <span>{docTypeLabel}</span>
           </div>
-        )}
+
+          {/* Title */}
+          <h3
+            onClick={() => onPreview && onPreview(resource)}
+            className="text-base font-bold text-[#0D1520] hover:text-[#127177] transition cursor-pointer leading-snug truncate"
+            title={resource.title}
+          >
+            {resource.title}
+          </h3>
+
+          {/* Description */}
+          <p className="text-xs text-slate-500 line-clamp-1 mt-1 leading-relaxed">
+            {resource.description || 'Sample overview covering bones, muscles, nerves, and clinical anatomy.'}
+          </p>
+
+          {/* Meta line */}
+          <div className="flex items-center gap-2 text-[11px] text-slate-400 font-medium mt-1.5">
+            <span>{resource.topic || resource.subject?.code || subjectName}</span>
+            <span className="text-slate-300">•</span>
+            <span>PDF</span>
+            <span className="text-slate-300">•</span>
+            <span>{formatFileSize(resource.fileSize)}</span>
+          </div>
+        </div>
       </div>
 
-      {/* Card Footer: Metadata and Action Buttons */}
-      <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2.5">
-        {/* Stats */}
-        <div className="flex items-center gap-2.5 sm:gap-3 text-xs text-slate-500 font-medium">
-          <span className="flex items-center gap-1" title="Views">
-            <Eye className="w-3.5 h-3.5 text-slate-400" />
-            <span>{resource.viewCount || 0}</span>
-          </span>
-          <span className="flex items-center gap-1" title="Downloads">
-            <ArrowDownToLine className="w-3.5 h-3.5 text-slate-400" />
-            <span>{resource.downloadCount || 0}</span>
-          </span>
-          <span className="font-mono text-[10px] text-slate-400 font-bold bg-white px-1.5 py-0.5 rounded border border-slate-200/60">
-            {formatFileSize(resource.fileSize)}
-          </span>
-        </div>
+      {/* Right: Actions */}
+      <div
+        className={`flex ${
+          layout === 'stacked'
+            ? 'flex-row sm:flex-col sm:w-28'
+            : 'flex-row'
+        } items-stretch sm:items-center gap-2 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100 flex-shrink-0`}
+      >
+        <button
+          type="button"
+          onClick={() => onPreview && onPreview(resource)}
+          className="w-full px-4 py-2 rounded-xl border border-slate-200/90 hover:border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-700 transition flex items-center justify-center gap-1.5 shadow-2xs"
+        >
+          <Eye className="w-3.5 h-3.5 text-slate-500" />
+          <span>Preview</span>
+        </button>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-1.5 sm:gap-2 ml-auto">
-          <button
-            onClick={() => onPreview(resource)}
-            className="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-navy-900 hover:bg-slate-200/70 transition flex items-center gap-1"
-            title="Preview PDF"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>Preview</span>
-          </button>
-
-          <button
-            onClick={() => onDownload(resource)}
-            className={`inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold text-white shadow-sm transition-all duration-200 active:scale-95 ${
-              isPyq
-                ? 'bg-crimson-600 hover:bg-crimson-700 shadow-crimson-500/20'
-                : 'bg-teal-600 hover:bg-teal-700 shadow-teal-500/20'
-            }`}
-            title="Download PDF"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Get PDF</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => onDownload && onDownload(resource)}
+          className="w-full px-4 py-2 rounded-xl bg-[#127177] hover:bg-[#0E5B60] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs active:scale-[0.98]"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span>Download</span>
+        </button>
       </div>
     </div>
   );
