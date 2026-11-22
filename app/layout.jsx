@@ -3,9 +3,9 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 export const metadata = {
-  title: 'MLTify - Medical Laboratory Technology Study Portal & PYQs',
+  title: 'MLTify Point — Medical Laboratory Technology Study Portal & PYQs',
   description:
-    'Free previous year question papers (PYQs) and high-yield lecture notes for B.Sc MLT, DMLT, and M.Sc MLT students. Learn, Analyze, and Excel in clinical lab diagnostics.',
+    'Free previous year question papers (PYQs) and high-yield lecture notes for B.Sc MLT, DMLT, and M.Sc MLT students on MLTify Point. Learn, Analyze, and Excel in clinical lab diagnostics.',
   icons: {
     icon: '/logo.jpg',
   },

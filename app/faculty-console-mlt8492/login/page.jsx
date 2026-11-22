@@ -55,7 +55,7 @@ export default function AdminLoginPage() {
           <div className="inline-block relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-teal-500/40 shadow-lg mx-auto mb-2 bg-white p-0.5">
             <Image
               src="/logo.jpg"
-              alt="MLTify Logo"
+              alt="MLTify Point Logo"
               width={64}
               height={64}
               className="object-cover rounded-[14px]"

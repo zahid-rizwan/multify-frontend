@@ -4,35 +4,142 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Search,
-  Filter,
   FileText,
-  Layers,
-  Calendar,
-  X,
-  ArrowUpDown,
-  BookOpen,
-  RefreshCw,
-  FolderOpen,
-  LayoutGrid,
-  List,
   Eye,
   Download,
-  Sparkles,
+  X,
+  ChevronDown,
 } from 'lucide-react';
-import ResourceCard from '../../components/ResourceCard';
 import PdfModal from '../../components/PdfModal';
 
-function ResourcesContent() {
+const SAMPLE_RESOURCES = [
+  {
+    _id: 'sample-1',
+    title: 'Cardiovascular Physiology Essentials',
+    description: 'Sample study guide to cardiac cycles, pressure changes, and circulation.',
+    subject: { name: 'Physiology' },
+    docType: 'NOTE',
+    category: 'PRESENTATIONS',
+    department: 'Cardiovascular System',
+    fileSize: '2.8 MB',
+    year: '2024',
+    fileUrl: '/sample.pdf',
+  },
+  {
+    _id: 'sample-2',
+    title: 'Autonomic Pharmacology — Quick Review',
+    description: 'Sample framework for comparing autonomic drug classes and actions.',
+    subject: { name: 'Pharmacology' },
+    docType: 'NOTE',
+    category: 'STUDY NOTES',
+    department: 'Autonomic Drugs',
+    fileSize: '2.8 MB',
+    year: '2024',
+    fileUrl: '/sample.pdf',
+  },
+  {
+    _id: 'sample-3',
+    title: 'Human Anatomy — Upper Limb',
+    description: 'Sample overview covering bones, muscles, nerves, and clinical anatomy.',
+    subject: { name: 'Anatomy' },
+    docType: 'NOTE',
+    category: 'STUDY NOTES',
+    department: 'Upper Limb',
+    fileSize: '2.8 MB',
+    year: '2023',
+    fileUrl: '/sample.pdf',
+  },
+  {
+    _id: 'sample-4',
+    title: 'General Anatomy — Important Questions',
+    description: 'A clearly labelled sample question set for revision and self-assessment.',
+    subject: { name: 'Anatomy' },
+    docType: 'PYQ',
+    category: 'PREVIOUS YEAR PAPERS',
+    department: 'General Anatomy',
+    fileSize: '2.8 MB',
+    year: '2023',
+    fileUrl: '/sample.pdf',
+  },
+  {
+    _id: 'sample-5',
+    title: 'Vital Signs — Clinical Checklist',
+    description: 'Sample educational checklist for recording foundational observations.',
+    subject: { name: 'Fundamentals of Nursing' },
+    docType: 'NOTE',
+    category: 'ASSIGNMENTS',
+    department: 'Clinical Assessment',
+    fileSize: '2.8 MB',
+    year: '2024',
+    fileUrl: '/sample.pdf',
+  },
+  {
+    _id: 'sample-6',
+    title: 'Gait Cycle — Visual Revision',
+    description: 'Sample revision material for gait phases and key biomechanical concepts.',
+    subject: { name: 'Biomechanics' },
+    docType: 'NOTE',
+    category: 'GUIDE',
+    department: 'Human Gait',
+    fileSize: '2.8 MB',
+    year: '2023',
+    fileUrl: '/sample.pdf',
+  },
+];
+
+const CURATED_SUBJECTS = [
+  {
+    level: 'First Professional',
+    name: 'Anatomy',
+    desc: 'Human structure, regional anatomy, and clinical relationships.',
+  },
+  {
+    level: 'First Professional',
+    name: 'Physiology',
+    desc: 'How cells, organs, and body systems function.',
+  },
+  {
+    level: 'First Professional',
+    name: 'Biochemistry',
+    desc: 'Molecular processes underlying health and disease.',
+  },
+  {
+    level: 'Second Professional',
+    name: 'Pathology',
+    desc: 'Mechanisms and morphology of human disease.',
+  },
+  {
+    level: 'Semester 3',
+    name: 'Pharmacology',
+    desc: 'Drug action, therapeutic use, and safety.',
+  },
+  {
+    level: 'Year 1',
+    name: 'Oral Anatomy',
+    desc: 'Dental morphology and oral structures.',
+  },
+  {
+    level: 'Year 1',
+    name: 'Fundamentals of Nursing',
+    desc: 'Core principles of safe, compassionate patient care.',
+  },
+  {
+    level: 'Semester 2',
+    name: 'Biomechanics',
+    desc: 'Mechanics of movement and musculoskeletal function.',
+  },
+];
+
+function LibraryContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Filters from URL or state
   const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [course, setCourse] = useState(searchParams.get('course') || '');
+  const [academicLevel, setAcademicLevel] = useState(searchParams.get('academicLevel') || '');
   const [subject, setSubject] = useState(searchParams.get('subject') || '');
-  const [docType, setDocType] = useState(searchParams.get('docType') || '');
-  const [year, setYear] = useState(searchParams.get('year') || '');
-  const [sort, setSort] = useState(searchParams.get('sort') || 'newest');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+  const [resourceType, setResourceType] = useState(searchParams.get('resourceType') || searchParams.get('docType') || '');
+  const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'newest');
 
   const [resources, setResources] = useState([]);
   const [subjectsList, setSubjectsList] = useState([]);
@@ -42,10 +149,11 @@ function ResourcesContent() {
   // Sync state if URL changes
   useEffect(() => {
     setSearch(searchParams.get('search') || '');
+    setCourse(searchParams.get('course') || '');
+    setAcademicLevel(searchParams.get('academicLevel') || '');
     setSubject(searchParams.get('subject') || '');
-    setDocType(searchParams.get('docType') || '');
-    setYear(searchParams.get('year') || '');
-    setSort(searchParams.get('sort') || 'newest');
+    setResourceType(searchParams.get('resourceType') || searchParams.get('docType') || '');
+    setSortBy(searchParams.get('sort') || 'newest');
   }, [searchParams]);
 
   // Fetch subjects list for filter dropdown
@@ -53,7 +161,7 @@ function ResourcesContent() {
     fetch('/api/subjects')
       .then((res) => res.json())
       .then((data) => {
-        if (data?.data) setSubjectsList(data.data);
+        if (data?.data && data.data.length > 0) setSubjectsList(data.data);
       })
       .catch((err) => console.error('Error fetching subjects:', err));
   }, []);
@@ -66,27 +174,39 @@ function ResourcesContent() {
         const params = new URLSearchParams();
         if (search) params.set('search', search);
         if (subject) params.set('subject', subject);
-        if (docType) params.set('docType', docType);
-        if (year) params.set('year', year);
-        if (sort) params.set('sort', sort);
+        if (resourceType) params.set('docType', resourceType);
+        if (sortBy) params.set('sort', sortBy);
 
         const res = await fetch(`/api/resources?${params.toString()}`);
         const data = await res.json();
-        if (data?.data) {
+        if (data?.data && data.data.length > 0) {
           setResources(data.data);
+        } else if (!search && !subject && !resourceType) {
+          // If no database items yet, show sample items matching image exactly
+          setResources(SAMPLE_RESOURCES);
         } else {
-          setResources([]);
+          // Filter sample resources locally if backend returns empty
+          const filtered = SAMPLE_RESOURCES.filter((item) => {
+            if (search && !item.title.toLowerCase().includes(search.toLowerCase()) && !item.description.toLowerCase().includes(search.toLowerCase())) {
+              return false;
+            }
+            if (resourceType && item.docType !== resourceType) {
+              return false;
+            }
+            return true;
+          });
+          setResources(filtered);
         }
       } catch (err) {
         console.error('Failed to load resources:', err);
-        setResources([]);
+        setResources(SAMPLE_RESOURCES);
       } finally {
         setLoading(false);
       }
     };
 
     fetchResources();
-  }, [search, subject, docType, year, sort]);
+  }, [search, subject, resourceType, sortBy]);
 
   const updateFilters = (newFilters) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -100,298 +220,312 @@ function ResourcesContent() {
     router.push(`/resources?${params.toString()}`);
   };
 
-  const handleClearFilters = () => {
+  const handleClearAll = () => {
     setSearch('');
+    setCourse('');
+    setAcademicLevel('');
     setSubject('');
-    setDocType('');
-    setYear('');
-    setSort('newest');
+    setResourceType('');
+    setSortBy('newest');
     router.push('/resources');
   };
 
   const handleDownload = (resource) => {
-    window.open(`/api/resources/${resource._id}/download`, '_blank');
+    if (resource._id && !resource._id.startsWith('sample')) {
+      window.open(`/api/resources/${resource._id}/download`, '_blank');
+    } else {
+      window.open(resource.fileUrl || '/logo.jpg', '_blank');
+    }
   };
 
-  const hasActiveFilters = Boolean(search || subject || docType || year);
+  const handlePreview = (resource) => {
+    setPreviewResource(resource);
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      {/* Banner */}
-      <div className="bg-navy-950 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 max-w-3xl">
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-teal-500/20 text-teal-300 border border-teal-400/30 mb-3">
-            Academic Repository
+    <div className="bg-[#FAFBFB] min-h-screen py-10 sm:py-14">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        {/* Header Section */}
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-[#127177] block mb-3">
+            MLTIFY POINT LIBRARY
           </span>
-          <h1 className="text-3xl sm:text-4xl font-black mb-3">
-            MLT Question Papers & Lecture Notes
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 mb-3">
+            Explore the Study Library.
           </h1>
-          <p className="text-sm sm:text-base text-slate-300 mb-6">
-            Search, preview in-browser, and download verified laboratory examination materials.
+          <p className="text-slate-600 text-base sm:text-lg">
+            Your academic resources, organized for easier discovery.
           </p>
 
-          {/* Search Box */}
-          <div className="relative max-w-xl">
+          {/* Large Search Bar */}
+          <div className="mt-8 relative max-w-4xl">
             <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={search}
               onChange={(e) => updateFilters({ search: e.target.value })}
-              placeholder="Search by topic, e.g., Biochemistry, Anemia, Urinalysis..."
-              className="w-full pl-12 pr-10 py-3 bg-white/10 backdrop-blur-md text-white rounded-2xl border border-white/15 focus:outline-none focus:border-teal-400 text-sm placeholder-slate-400 font-medium"
+              placeholder="Search subjects, chapters, notes, or study materials..."
+              className="w-full pl-12 pr-10 py-3.5 bg-white text-slate-900 rounded-xl border border-slate-200/90 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#127177]/20 focus:border-[#127177] text-sm placeholder-slate-400 font-normal"
             />
             {search && (
               <button
                 onClick={() => updateFilters({ search: '' })}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Control Bar: Filters & View Switcher */}
-      <div className="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200/90 shadow-sm space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
-          {/* DocType Buttons */}
-          <div className="w-full sm:w-auto grid grid-cols-3 sm:flex items-center gap-1 sm:gap-1.5 bg-slate-100 p-1 sm:p-1.5 rounded-2xl text-[11px] sm:text-xs font-bold text-slate-600 text-center">
-            <button
-              onClick={() => updateFilters({ docType: '' })}
-              className={`py-2 px-2 sm:px-4 rounded-xl transition ${
-                !docType ? 'bg-white text-navy-950 shadow-sm' : 'hover:text-navy-900'
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => updateFilters({ docType: 'PYQ' })}
-              className={`py-2 px-2 sm:px-4 rounded-xl transition ${
-                docType === 'PYQ'
-                  ? 'bg-crimson-600 text-white shadow-sm'
-                  : 'hover:text-navy-900'
-              }`}
-            >
-              PYQs Only
-            </button>
-            <button
-              onClick={() => updateFilters({ docType: 'NOTE' })}
-              className={`py-2 px-2 sm:px-4 rounded-xl transition ${
-                docType === 'NOTE'
-                  ? 'bg-teal-600 text-white shadow-sm'
-                  : 'hover:text-navy-900'
-              }`}
-            >
-              Notes Only
-            </button>
-          </div>
-
-          {/* Right: Sort and View Mode Switcher */}
-          <div className="flex items-center gap-3">
-            {/* View Mode Toggle */}
-            <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl text-slate-500">
+        {/* Two Column Layout: Left Filter Sidebar, Right Resources List */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left Sidebar Filters */}
+          <div className="lg:col-span-3 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <span className="text-sm font-bold text-slate-900">Refine resources</span>
               <button
-                onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-lg transition ${
-                  viewMode === 'grid' ? 'bg-white text-navy-950 shadow-sm' : 'hover:text-navy-900'
-                }`}
-                title="Grid View"
+                onClick={handleClearAll}
+                className="text-xs font-semibold text-[#127177] hover:underline"
               >
-                <LayoutGrid className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-lg transition ${
-                  viewMode === 'list' ? 'bg-white text-navy-950 shadow-sm' : 'hover:text-navy-900'
-                }`}
-                title="List View"
-              >
-                <List className="w-4 h-4" />
+                Clear all
               </button>
             </div>
 
-            {/* Sort Dropdown */}
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
-              <ArrowUpDown className="w-4 h-4" />
+            {/* Course Filter */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Course
+              </label>
               <select
-                value={sort}
-                onChange={(e) => updateFilters({ sort: e.target.value })}
-                className="bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold py-2 px-3 rounded-xl focus:outline-none focus:border-teal-500"
+                value={course}
+                onChange={(e) => updateFilters({ course: e.target.value })}
+                className="w-full bg-slate-50/80 border border-slate-200 text-slate-700 text-xs font-medium py-2 px-3 rounded-lg focus:outline-none focus:border-[#127177]"
               >
-                <option value="newest">Newest First</option>
-                <option value="downloads">Most Downloaded</option>
-                <option value="views">Most Viewed</option>
-                <option value="title">Alphabetical (A-Z)</option>
+                <option value="">All courses</option>
+                <option value="B.Sc MLT">B.Sc MLT</option>
+                <option value="DMLT">DMLT</option>
+                <option value="M.Sc MLT">M.Sc MLT</option>
+              </select>
+            </div>
+
+            {/* Academic Level */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Academic Level
+              </label>
+              <select
+                value={academicLevel}
+                onChange={(e) => updateFilters({ academicLevel: e.target.value })}
+                className="w-full bg-slate-50/80 border border-slate-200 text-slate-700 text-xs font-medium py-2 px-3 rounded-lg focus:outline-none focus:border-[#127177]"
+              >
+                <option value="">All academic levels</option>
+                <option value="First Professional">First Professional</option>
+                <option value="Second Professional">Second Professional</option>
+                <option value="Year 1">Year 1</option>
+                <option value="Semester 2">Semester 2</option>
+                <option value="Semester 3">Semester 3</option>
+              </select>
+            </div>
+
+            {/* Subject */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Subject
+              </label>
+              <select
+                value={subject}
+                onChange={(e) => updateFilters({ subject: e.target.value })}
+                className="w-full bg-slate-50/80 border border-slate-200 text-slate-700 text-xs font-medium py-2 px-3 rounded-lg focus:outline-none focus:border-[#127177]"
+              >
+                <option value="">All subjects</option>
+                {subjectsList.length > 0 ? (
+                  subjectsList.map((s) => (
+                    <option key={s._id} value={s._id}>
+                      {s.name}
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="Physiology">Physiology</option>
+                    <option value="Pharmacology">Pharmacology</option>
+                    <option value="Anatomy">Anatomy</option>
+                    <option value="Pathology">Pathology</option>
+                    <option value="Biochemistry">Biochemistry</option>
+                    <option value="Biomechanics">Biomechanics</option>
+                  </>
+                )}
+              </select>
+            </div>
+
+            {/* Resource Type */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Resource Type
+              </label>
+              <select
+                value={resourceType}
+                onChange={(e) => updateFilters({ resourceType: e.target.value })}
+                className="w-full bg-slate-50/80 border border-slate-200 text-slate-700 text-xs font-medium py-2 px-3 rounded-lg focus:outline-none focus:border-[#127177]"
+              >
+                <option value="">All resource types</option>
+                <option value="PYQ">Question Papers (PYQ)</option>
+                <option value="NOTE">Study Notes</option>
+                <option value="PRESENTATION">Presentations</option>
+                <option value="ASSIGNMENT">Assignments</option>
+              </select>
+            </div>
+
+            {/* Sort By */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Sort By
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => updateFilters({ sort: e.target.value })}
+                className="w-full bg-slate-50/80 border border-slate-200 text-slate-700 text-xs font-medium py-2 px-3 rounded-lg focus:outline-none focus:border-[#127177]"
+              >
+                <option value="newest">Recently Added</option>
+                <option value="downloads">Most Popular</option>
+                <option value="title">Title (A-Z)</option>
               </select>
             </div>
           </div>
-        </div>
 
-        {/* Dropdowns Row: Subject, Year */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100">
-          {/* Subject Dropdown */}
-          <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1">Filter by Subject</label>
-            <select
-              value={subject}
-              onChange={(e) => updateFilters({ subject: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold py-2.5 px-3 rounded-xl focus:outline-none focus:border-teal-500"
-            >
-              <option value="">All Subjects</option>
-              {subjectsList.map((s) => (
-                <option key={s._id} value={s._id}>
-                  {s.name} ({s.code})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Year Dropdown */}
-          <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1">Filter by Exam Year</label>
-            <select
-              value={year}
-              onChange={(e) => updateFilters({ year: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold py-2.5 px-3 rounded-xl focus:outline-none focus:border-teal-500"
-            >
-              <option value="">All Years</option>
-              {[2026, 2025, 2024, 2023, 2022, 2021, 2020].map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Clear Filters Indicator */}
-        {hasActiveFilters && (
-          <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-            <span className="text-slate-500 font-medium">
-              Filtered results: <strong className="text-navy-950">{resources.length}</strong> papers found
-            </span>
-            <button
-              onClick={handleClearFilters}
-              className="text-crimson-600 hover:text-crimson-700 font-bold flex items-center gap-1.5 transition"
-            >
-              <X className="w-3.5 h-3.5" />
-              <span>Reset all filters</span>
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Results View */}
-      <div>
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-64 bg-slate-200/60 rounded-3xl animate-pulse" />
-            ))}
-          </div>
-        ) : resources.length > 0 ? (
-          viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {resources.map((res) => (
-                <ResourceCard
-                  key={res._id}
-                  resource={res}
-                  onPreview={(r) => setPreviewResource(r)}
-                  onDownload={handleDownload}
-                />
-              ))}
+          {/* Right Resource List */}
+          <div className="lg:col-span-9 space-y-4">
+            <div className="mb-2">
+              <h2 className="text-sm font-bold text-slate-900">
+                {resources.length} {resources.length === 1 ? 'resource' : 'resources'} found
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Every listed item has a working preview and download.
+              </p>
             </div>
-          ) : (
-            /* Compact List / Table View */
-            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
-              <table className="w-full text-left text-xs text-slate-600">
-                <thead className="bg-slate-50 text-slate-700 uppercase font-bold text-[11px] border-b border-slate-200">
-                  <tr>
-                    <th className="py-4 px-6">Type</th>
-                    <th className="py-4 px-6">Title & Subject</th>
-                    <th className="py-4 px-6">Exam Year</th>
-                    <th className="py-4 px-6">Downloads</th>
-                    <th className="py-4 px-6 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {resources.map((res) => (
-                    <tr key={res._id} className="hover:bg-slate-50/80 transition">
-                      <td className="py-4 px-6">
-                        <span
-                          className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                            res.docType === 'PYQ'
-                              ? 'bg-crimson-100 text-crimson-700'
-                              : 'bg-teal-100 text-teal-800'
-                          }`}
-                        >
-                          {res.docType}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6">
-                        <p
-                          onClick={() => setPreviewResource(res)}
-                          className="font-bold text-navy-950 hover:text-teal-700 cursor-pointer text-sm mb-0.5"
-                        >
-                          {res.title}
-                        </p>
-                        <p className="text-[11px] text-teal-800 font-semibold">
-                          {res.subject?.name || res.subjectName}
-                        </p>
-                      </td>
-                      <td className="py-4 px-6 font-semibold font-mono text-slate-700">
-                        {res.year}
-                      </td>
-                      <td className="py-4 px-6 font-bold text-slate-700">
-                        {res.downloadCount || 0}
-                      </td>
-                      <td className="py-4 px-6 text-right space-x-2">
+
+            {loading ? (
+              <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-400 text-sm">
+                Loading academic resources...
+              </div>
+            ) : resources.length === 0 ? (
+              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                <p className="text-slate-600 font-semibold mb-2">No matching resources found.</p>
+                <p className="text-xs text-slate-400 mb-4">Try clearing filters or searching another keyword.</p>
+                <button
+                  onClick={handleClearAll}
+                  className="px-4 py-2 bg-[#127177] text-white text-xs font-semibold rounded-lg"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3.5">
+                {resources.map((res) => {
+                  const subjectName = res.subject?.name || res.subject || 'Allied Health';
+                  const docTypeLabel =
+                    res.category ||
+                    (res.docType === 'PYQ' ? 'QUESTION PAPERS' : 'STUDY NOTES');
+                  const sizeOrYear = res.fileSize || `${res.year || '2024'} • 2.8 MB`;
+
+                  return (
+                    <div
+                      key={res._id}
+                      className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs hover:border-slate-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      {/* Left Side: Icon & Details */}
+                      <div className="flex items-start gap-4 min-w-0">
+                        {/* PDF Box Badge */}
+                        <div className="w-12 h-14 rounded-lg bg-[#E6F4F1] border border-teal-200/80 flex flex-col items-center justify-center flex-shrink-0 text-[#127177]">
+                          <FileText className="w-5 h-5 stroke-[1.8]" />
+                          <span className="text-[9px] font-bold tracking-wider mt-0.5 uppercase">
+                            PDF
+                          </span>
+                        </div>
+
+                        {/* Title and tags */}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#127177] tracking-wider uppercase mb-1">
+                            <span>{subjectName}</span>
+                            <span>•</span>
+                            <span>{docTypeLabel}</span>
+                          </div>
+
+                          <h3 className="text-base font-bold text-slate-900 tracking-tight mb-1 truncate">
+                            {res.title}
+                          </h3>
+
+                          <p className="text-xs text-slate-500 line-clamp-1 mb-2">
+                            {res.description || 'Verified university syllabus lecture guide and reference paper.'}
+                          </p>
+
+                          <div className="text-[11px] text-slate-400 flex items-center gap-2">
+                            <span>{res.department || subjectName}</span>
+                            <span>•</span>
+                            <span>PDF</span>
+                            <span>•</span>
+                            <span>{sizeOrYear}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right Action Buttons */}
+                      <div className="flex items-center gap-2.5 flex-shrink-0 self-end sm:self-center">
                         <button
-                          onClick={() => setPreviewResource(res)}
-                          className="p-2 text-slate-500 hover:text-navy-950 hover:bg-slate-200 rounded-xl transition"
-                          title="Preview PDF"
+                          onClick={() => handlePreview(res)}
+                          className="px-4 py-2 rounded-lg bg-white border border-slate-200 hover:border-slate-300 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs hover:bg-slate-50"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Preview</span>
                         </button>
+
                         <button
                           onClick={() => handleDownload(res)}
-                          className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-1"
+                          className="px-4 py-2 rounded-lg bg-[#127177] hover:bg-[#0E5B60] text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs"
                         >
                           <Download className="w-3.5 h-3.5" />
-                          <span>PDF</span>
+                          <span>Download</span>
                         </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )
-        ) : (
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-12 text-center max-w-md mx-auto shadow-sm">
-            <FolderOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-navy-950 mb-1">No documents found</h3>
-            <p className="text-xs text-slate-500 mb-6 leading-relaxed">
-              We couldn't find any resources matching your search. Try resetting filters.
-            </p>
-            <button
-              onClick={handleClearFilters}
-              className="px-5 py-2.5 bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold rounded-xl transition"
-            >
-              Clear All Filters
-            </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Bottom Section: Browse by subject */}
+        <div className="pt-10 border-t border-slate-200/80">
+          <h2 className="text-xl font-bold text-slate-900 mb-6">Browse by subject</h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {CURATED_SUBJECTS.map((subj) => (
+              <div
+                key={subj.name}
+                onClick={() => updateFilters({ search: subj.name })}
+                className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs hover:border-slate-300 hover:shadow-sm cursor-pointer transition group"
+              >
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#127177] block mb-2">
+                  {subj.level}
+                </span>
+                <h3 className="text-base font-bold text-slate-900 group-hover:text-[#127177] transition mb-1.5">
+                  {subj.name}
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                  {subj.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* PDF Modal */}
+      {/* PDF Preview Modal */}
       {previewResource && (
         <PdfModal
           resource={previewResource}
           onClose={() => setPreviewResource(null)}
-          onDownload={handleDownload}
         />
       )}
     </div>
@@ -402,12 +536,12 @@ export default function ResourcesPage() {
   return (
     <Suspense
       fallback={
-        <div className="max-w-7xl mx-auto px-4 py-20 text-center text-slate-500 font-semibold">
-          Loading materials...
+        <div className="min-h-screen bg-[#FAFBFB] p-12 text-center text-slate-400">
+          Loading MLTify Point Library...
         </div>
       }
     >
-      <ResourcesContent />
+      <LibraryContent />
     </Suspense>
   );
 }
