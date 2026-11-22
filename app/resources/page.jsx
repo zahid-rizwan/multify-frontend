@@ -89,42 +89,34 @@ const SAMPLE_RESOURCES = [
 
 const CURATED_SUBJECTS = [
   {
-    level: 'First Professional',
     name: 'Anatomy',
     desc: 'Human structure, regional anatomy, and clinical relationships.',
   },
   {
-    level: 'First Professional',
     name: 'Physiology',
     desc: 'How cells, organs, and body systems function.',
   },
   {
-    level: 'First Professional',
     name: 'Biochemistry',
     desc: 'Molecular processes underlying health and disease.',
   },
   {
-    level: 'Second Professional',
     name: 'Pathology',
     desc: 'Mechanisms and morphology of human disease.',
   },
   {
-    level: 'Semester 3',
     name: 'Pharmacology',
     desc: 'Drug action, therapeutic use, and safety.',
   },
   {
-    level: 'Year 1',
     name: 'Oral Anatomy',
     desc: 'Dental morphology and oral structures.',
   },
   {
-    level: 'Year 1',
     name: 'Fundamentals of Nursing',
     desc: 'Core principles of safe, compassionate patient care.',
   },
   {
-    level: 'Semester 2',
     name: 'Biomechanics',
     desc: 'Mechanics of movement and musculoskeletal function.',
   },
@@ -135,8 +127,6 @@ function LibraryContent() {
   const router = useRouter();
 
   const [search, setSearch] = useState(searchParams.get('search') || '');
-  const [course, setCourse] = useState(searchParams.get('course') || '');
-  const [academicLevel, setAcademicLevel] = useState(searchParams.get('academicLevel') || '');
   const [subject, setSubject] = useState(searchParams.get('subject') || '');
   const [resourceType, setResourceType] = useState(searchParams.get('resourceType') || searchParams.get('docType') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'newest');
@@ -149,8 +139,6 @@ function LibraryContent() {
   // Sync state if URL changes
   useEffect(() => {
     setSearch(searchParams.get('search') || '');
-    setCourse(searchParams.get('course') || '');
-    setAcademicLevel(searchParams.get('academicLevel') || '');
     setSubject(searchParams.get('subject') || '');
     setResourceType(searchParams.get('resourceType') || searchParams.get('docType') || '');
     setSortBy(searchParams.get('sort') || 'newest');
@@ -222,8 +210,6 @@ function LibraryContent() {
 
   const handleClearAll = () => {
     setSearch('');
-    setCourse('');
-    setAcademicLevel('');
     setSubject('');
     setResourceType('');
     setSortBy('newest');
@@ -290,42 +276,6 @@ function LibraryContent() {
               >
                 Clear all
               </button>
-            </div>
-
-            {/* Course Filter */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                Course
-              </label>
-              <select
-                value={course}
-                onChange={(e) => updateFilters({ course: e.target.value })}
-                className="w-full bg-slate-50/80 border border-slate-200 text-slate-700 text-xs font-medium py-2 px-3 rounded-lg focus:outline-none focus:border-[#127177]"
-              >
-                <option value="">All courses</option>
-                <option value="B.Sc MLT">B.Sc MLT</option>
-                <option value="DMLT">DMLT</option>
-                <option value="M.Sc MLT">M.Sc MLT</option>
-              </select>
-            </div>
-
-            {/* Academic Level */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                Academic Level
-              </label>
-              <select
-                value={academicLevel}
-                onChange={(e) => updateFilters({ academicLevel: e.target.value })}
-                className="w-full bg-slate-50/80 border border-slate-200 text-slate-700 text-xs font-medium py-2 px-3 rounded-lg focus:outline-none focus:border-[#127177]"
-              >
-                <option value="">All academic levels</option>
-                <option value="First Professional">First Professional</option>
-                <option value="Second Professional">Second Professional</option>
-                <option value="Year 1">Year 1</option>
-                <option value="Semester 2">Semester 2</option>
-                <option value="Semester 3">Semester 3</option>
-              </select>
             </div>
 
             {/* Subject */}
@@ -500,15 +450,25 @@ function LibraryContent() {
           <h2 className="text-xl font-bold text-slate-900 mb-6">Browse by subject</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {CURATED_SUBJECTS.map((subj) => (
+            {(subjectsList.length > 0
+              ? subjectsList.map((s) => ({
+                  id: s._id,
+                  name: s.name,
+                  desc: s.description || 'Official university curriculum question papers and verified study guides.',
+                }))
+              : CURATED_SUBJECTS
+            ).map((subj) => (
               <div
-                key={subj.name}
-                onClick={() => updateFilters({ search: subj.name })}
+                key={subj.id || subj.name}
+                onClick={() => {
+                  if (subj.id) {
+                    updateFilters({ subject: subj.id });
+                  } else {
+                    updateFilters({ search: subj.name });
+                  }
+                }}
                 className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs hover:border-slate-300 hover:shadow-sm cursor-pointer transition group"
               >
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#127177] block mb-2">
-                  {subj.level}
-                </span>
                 <h3 className="text-base font-bold text-slate-900 group-hover:text-[#127177] transition mb-1.5">
                   {subj.name}
                 </h3>

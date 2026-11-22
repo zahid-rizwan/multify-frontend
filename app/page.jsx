@@ -24,8 +24,6 @@ import PdfModal from '../components/PdfModal';
 
 export default function HomePage() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState('ALL');
   const [featuredResources, setFeaturedResources] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,154 +64,46 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    if (searchQuery.trim()) params.set('search', searchQuery.trim());
-    if (selectedType !== 'ALL') params.set('docType', selectedType);
-    router.push(`/resources?${params.toString()}`);
-  };
-
-  const handleDownload = (resource) => {
-    window.open(`/api/resources/${resource._id}/download`, '_blank');
-  };
-
   return (
     <div className="bg-[#FAF8F5]">
       {/* Hero Section with distinct off-white/warm background */}
-      <section className="bg-[#FAF8F5] pt-12 pb-16 lg:pt-16 lg:pb-24 border-b border-slate-200/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-            {/* Left Content */}
-            <div className="lg:col-span-7 space-y-6">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#127177] block">
-                MLTIFY POINT • ACADEMIC MEDICAL REPOSITORY
-              </span>
+      <section className="bg-[#FAF8F5] pt-16 pb-20 lg:pt-24 lg:pb-28 border-b border-slate-200/60">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+          <span className="text-xs font-bold uppercase tracking-widest text-[#127177] inline-block">
+            MLTIFY POINT • ACADEMIC MEDICAL REPOSITORY
+          </span>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.08]">
-                Simplifying Lab Learning for{' '}
-                <span className="text-[#127177]">MLT Students</span>
-              </h1>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.08]">
+            Simplifying Lab Learning for{' '}
+            <span className="text-[#127177]">MLT Students</span>
+          </h1>
 
-              <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal max-w-xl">
-                Discover thoughtfully organized medical notes, academic resources, and study
-                materials designed to make your learning journey easier.
-              </p>
+          <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal max-w-2xl mx-auto">
+            Discover thoughtfully organized medical notes, academic resources, and study
+            materials designed to make your learning journey easier.
+          </p>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3.5 pt-2">
-                <Link
-                  href="/resources"
-                  className="px-6 py-3.5 rounded-xl bg-[#127177] hover:bg-[#0E5B60] text-white text-sm font-semibold transition shadow-xs flex items-center justify-center gap-2 group active:scale-[0.98]"
-                >
-                  <span>Explore study materials</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
+            <Link
+              href="/resources"
+              className="px-6 py-3.5 rounded-xl bg-[#127177] hover:bg-[#0E5B60] text-white text-sm font-semibold transition shadow-xs flex items-center justify-center gap-2 group active:scale-[0.98]"
+            >
+              <span>Explore study materials</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
 
-                <a
-                  href="#disciplines"
-                  className="px-6 py-3.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-slate-800 text-sm font-semibold transition shadow-2xs hover:bg-slate-50 flex items-center justify-center"
-                >
-                  <span>Discover subjects</span>
-                </a>
-              </div>
+            <a
+              href="#disciplines"
+              className="px-6 py-3.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-slate-800 text-sm font-semibold transition shadow-2xs hover:bg-slate-50 flex items-center justify-center"
+            >
+              <span>Discover subjects</span>
+            </a>
+          </div>
 
-              {/* Sub-text divider line */}
-              <div className="pt-1 text-xs text-slate-400 font-medium">
-                — One destination. Multiple medical disciplines. Better learning.
-              </div>
-
-              {/* Clean Integrated Search Bar Matching Spec */}
-              <div className="pt-4 max-w-2xl">
-                <form
-                  onSubmit={handleSearchSubmit}
-                  className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200/90 flex flex-col sm:flex-row items-center gap-2"
-                >
-                  {/* Segmented Filter Pills */}
-                  <div className="flex bg-[#F5F7F6] p-1 rounded-xl text-xs font-semibold text-slate-600 flex-shrink-0 w-full sm:w-auto justify-center">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedType('ALL')}
-                      className={`py-1.5 px-3.5 rounded-lg transition-all ${
-                        selectedType === 'ALL'
-                          ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                          : 'hover:text-slate-900'
-                      }`}
-                    >
-                      All
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedType('PYQ')}
-                      className={`py-1.5 px-3.5 rounded-lg transition-all ${
-                        selectedType === 'PYQ'
-                          ? 'bg-white text-[#127177] shadow-2xs font-bold'
-                          : 'hover:text-slate-900'
-                      }`}
-                    >
-                      PYQs
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedType('NOTE')}
-                      className={`py-1.5 px-3.5 rounded-lg transition-all ${
-                        selectedType === 'NOTE'
-                          ? 'bg-white text-[#127177] shadow-2xs font-bold'
-                          : 'hover:text-slate-900'
-                      }`}
-                    >
-                      Notes
-                    </button>
-                  </div>
-
-                  {/* Input */}
-                  <div className="relative flex-1 w-full flex items-center">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search notes, questions, topics..."
-                      className="w-full pl-9 pr-3 py-2 text-sm bg-transparent focus:outline-none text-slate-900 placeholder-slate-400 font-normal"
-                    />
-                  </div>
-
-                  {/* Button */}
-                  <button
-                    type="submit"
-                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl font-semibold text-sm bg-[#0B1320] hover:bg-slate-900 text-white transition-all shadow-xs flex items-center justify-center gap-1.5 flex-shrink-0"
-                  >
-                    <span>Search</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </form>
-              </div>
-            </div>
-
-            {/* Right Doctor Image */}
-            <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-md rounded-3xl overflow-hidden shadow-xl border border-slate-200/60 bg-white">
-                <Image
-                  src="/doctor.jpg"
-                  alt="Medical Laboratory Professional"
-                  width={500}
-                  height={580}
-                  className="w-full h-[380px] sm:h-[440px] object-cover object-top"
-                  priority
-                />
-
-                {/* Floating Card over Doctor Image */}
-                <div className="absolute bottom-5 left-5 right-5 bg-white/95 backdrop-blur-md p-3.5 rounded-2xl border border-slate-200/80 shadow-md flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-[#127177] flex-shrink-0">
-                    <CheckCircle2 className="w-5 h-5 text-[#127177]" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900">Verified Academic Notes</h4>
-                    <p className="text-[11px] text-slate-500">Organized by Subject & Year</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Sub-text divider line */}
+          <div className="pt-2 text-xs text-slate-400 font-medium">
+            — One destination. Multiple medical disciplines. Better learning.
           </div>
         </div>
       </section>
