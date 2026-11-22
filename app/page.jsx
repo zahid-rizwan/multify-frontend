@@ -195,28 +195,44 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {subjects.map((subj) => (
-                <Link
-                  key={subj._id}
-                  href={`/resources?subject=${subj._id}`}
-                  className="bg-white p-5 rounded-xl border border-slate-200/80 hover:border-slate-300 hover:shadow-sm transition-all group"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-bold text-[#127177] uppercase tracking-wider">
-                      {subj.code || 'MLT'}
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      {(subj.pyqCount || 0) + (subj.noteCount || 0)} materials
-                    </span>
+              {loading ? (
+                [1, 2, 3, 4, 5, 6].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-white p-5 rounded-xl border border-slate-200/80 animate-pulse space-y-3"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="h-3 w-16 bg-slate-200 rounded" />
+                      <div className="h-3 w-12 bg-slate-100 rounded" />
+                    </div>
+                    <div className="h-4 w-3/4 bg-slate-200 rounded" />
+                    <div className="h-3 w-full bg-slate-100 rounded" />
                   </div>
-                  <h4 className="text-base font-bold text-slate-900 group-hover:text-[#127177] transition-colors mb-1">
-                    {subj.name}
-                  </h4>
-                  <p className="text-xs text-slate-500">
-                    Previous year exams and verified classroom lectures.
-                  </p>
-                </Link>
-              ))}
+                ))
+              ) : (
+                subjects.map((subj) => (
+                  <Link
+                    key={subj._id}
+                    href={`/resources?subject=${subj._id}`}
+                    className="bg-white p-5 rounded-xl border border-slate-200/80 hover:border-slate-300 hover:shadow-sm transition-all group"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold text-[#127177] uppercase tracking-wider">
+                        {subj.code || 'MLT'}
+                      </span>
+                      <span className="text-xs text-slate-400">
+                        {(subj.pyqCount || 0) + (subj.noteCount || 0)} materials
+                      </span>
+                    </div>
+                    <h4 className="text-base font-bold text-slate-900 group-hover:text-[#127177] transition-colors mb-1">
+                      {subj.name}
+                    </h4>
+                    <p className="text-xs text-slate-500">
+                      Previous year exams and verified classroom lectures.
+                    </p>
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         </div>

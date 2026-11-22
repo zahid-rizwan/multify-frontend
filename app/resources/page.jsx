@@ -12,81 +12,6 @@ import {
 } from 'lucide-react';
 import PdfModal from '../../components/PdfModal';
 
-const SAMPLE_RESOURCES = [
-  {
-    _id: 'sample-1',
-    title: 'Cardiovascular Physiology Essentials',
-    description: 'Sample study guide to cardiac cycles, pressure changes, and circulation.',
-    subject: { name: 'Physiology' },
-    docType: 'NOTE',
-    category: 'PRESENTATIONS',
-    department: 'Cardiovascular System',
-    fileSize: '2.8 MB',
-    year: '2024',
-    fileUrl: '/sample.pdf',
-  },
-  {
-    _id: 'sample-2',
-    title: 'Autonomic Pharmacology — Quick Review',
-    description: 'Sample framework for comparing autonomic drug classes and actions.',
-    subject: { name: 'Pharmacology' },
-    docType: 'NOTE',
-    category: 'STUDY NOTES',
-    department: 'Autonomic Drugs',
-    fileSize: '2.8 MB',
-    year: '2024',
-    fileUrl: '/sample.pdf',
-  },
-  {
-    _id: 'sample-3',
-    title: 'Human Anatomy — Upper Limb',
-    description: 'Sample overview covering bones, muscles, nerves, and clinical anatomy.',
-    subject: { name: 'Anatomy' },
-    docType: 'NOTE',
-    category: 'STUDY NOTES',
-    department: 'Upper Limb',
-    fileSize: '2.8 MB',
-    year: '2023',
-    fileUrl: '/sample.pdf',
-  },
-  {
-    _id: 'sample-4',
-    title: 'General Anatomy — Important Questions',
-    description: 'A clearly labelled sample question set for revision and self-assessment.',
-    subject: { name: 'Anatomy' },
-    docType: 'PYQ',
-    category: 'PREVIOUS YEAR PAPERS',
-    department: 'General Anatomy',
-    fileSize: '2.8 MB',
-    year: '2023',
-    fileUrl: '/sample.pdf',
-  },
-  {
-    _id: 'sample-5',
-    title: 'Vital Signs — Clinical Checklist',
-    description: 'Sample educational checklist for recording foundational observations.',
-    subject: { name: 'Fundamentals of Nursing' },
-    docType: 'NOTE',
-    category: 'ASSIGNMENTS',
-    department: 'Clinical Assessment',
-    fileSize: '2.8 MB',
-    year: '2024',
-    fileUrl: '/sample.pdf',
-  },
-  {
-    _id: 'sample-6',
-    title: 'Gait Cycle — Visual Revision',
-    description: 'Sample revision material for gait phases and key biomechanical concepts.',
-    subject: { name: 'Biomechanics' },
-    docType: 'NOTE',
-    category: 'GUIDE',
-    department: 'Human Gait',
-    fileSize: '2.8 MB',
-    year: '2023',
-    fileUrl: '/sample.pdf',
-  },
-];
-
 const CURATED_SUBJECTS = [
   {
     name: 'Anatomy',
@@ -134,6 +59,7 @@ function LibraryContent() {
   const [resources, setResources] = useState([]);
   const [subjectsList, setSubjectsList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [subjectsLoading, setSubjectsLoading] = useState(true);
   const [previewResource, setPreviewResource] = useState(null);
 
   // Sync state if URL changes
@@ -146,12 +72,14 @@ function LibraryContent() {
 
   // Fetch subjects list for filter dropdown
   useEffect(() => {
+    setSubjectsLoading(true);
     fetch('/api/subjects')
       .then((res) => res.json())
       .then((data) => {
         if (data?.data && data.data.length > 0) setSubjectsList(data.data);
       })
-      .catch((err) => console.error('Error fetching subjects:', err));
+      .catch((err) => console.error('Error fetching subjects:', err))
+      .finally(() => setSubjectsLoading(false));
   }, []);
 
   // Fetch resources based on current filters
@@ -167,27 +95,14 @@ function LibraryContent() {
 
         const res = await fetch(`/api/resources?${params.toString()}`);
         const data = await res.json();
-        if (data?.data && data.data.length > 0) {
+        if (data?.data && Array.isArray(data.data)) {
           setResources(data.data);
-        } else if (!search && !subject && !resourceType) {
-          // If no database items yet, show sample items matching image exactly
-          setResources(SAMPLE_RESOURCES);
         } else {
-          // Filter sample resources locally if backend returns empty
-          const filtered = SAMPLE_RESOURCES.filter((item) => {
-            if (search && !item.title.toLowerCase().includes(search.toLowerCase()) && !item.description.toLowerCase().includes(search.toLowerCase())) {
-              return false;
-            }
-            if (resourceType && item.docType !== resourceType) {
-              return false;
-            }
-            return true;
-          });
-          setResources(filtered);
+          setResources([]);
         }
       } catch (err) {
         console.error('Failed to load resources:', err);
-        setResources(SAMPLE_RESOURCES);
+        setResources([]);
       } finally {
         setLoading(false);
       }
@@ -355,16 +270,41 @@ function LibraryContent() {
             </div>
 
             {loading ? (
-              <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-400 text-sm">
-                Loading academic resources...
+              <div className="space-y-3.5">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-pulse"
+                  >
+                    <div className="flex items-start gap-4 min-w-0 flex-1">
+                      {/* PDF box skeleton */}
+                      <div className="w-12 h-14 rounded-lg bg-slate-200/80 flex-shrink-0" />
+                      <div className="space-y-2.5 flex-1 min-w-0">
+                        <div className="h-3 w-32 bg-slate-200 rounded" />
+                        <div className="h-4 w-3/4 bg-slate-200 rounded" />
+                        <div className="h-3 w-full bg-slate-100 rounded" />
+                        <div className="h-2.5 w-40 bg-slate-200 rounded" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2.5 flex-shrink-0 self-end sm:self-center">
+                      <div className="h-8 w-20 bg-slate-200 rounded-lg" />
+                      <div className="h-8 w-24 bg-slate-200 rounded-lg" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : resources.length === 0 ? (
-              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-                <p className="text-slate-600 font-semibold mb-2">No matching resources found.</p>
-                <p className="text-xs text-slate-400 mb-4">Try clearing filters or searching another keyword.</p>
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                  <FileText className="w-6 h-6 stroke-[1.5]" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900 mb-1">No resources found</h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto mb-5">
+                  There are no question papers or lecture notes matching your current filter criteria.
+                </p>
                 <button
                   onClick={handleClearAll}
-                  className="px-4 py-2 bg-[#127177] text-white text-xs font-semibold rounded-lg"
+                  className="px-4 py-2 bg-[#127177] hover:bg-[#0E5B60] text-white text-xs font-semibold rounded-lg transition"
                 >
                   Clear all filters
                 </button>
@@ -450,33 +390,46 @@ function LibraryContent() {
           <h2 className="text-xl font-bold text-slate-900 mb-6">Browse by subject</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(subjectsList.length > 0
-              ? subjectsList.map((s) => ({
-                  id: s._id,
-                  name: s.name,
-                  desc: s.description || 'Official university curriculum question papers and verified study guides.',
-                }))
-              : CURATED_SUBJECTS
-            ).map((subj) => (
-              <div
-                key={subj.id || subj.name}
-                onClick={() => {
-                  if (subj.id) {
-                    updateFilters({ subject: subj.id });
-                  } else {
-                    updateFilters({ search: subj.name });
-                  }
-                }}
-                className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs hover:border-slate-300 hover:shadow-sm cursor-pointer transition group"
-              >
-                <h3 className="text-base font-bold text-slate-900 group-hover:text-[#127177] transition mb-1.5">
-                  {subj.name}
-                </h3>
-                <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                  {subj.desc}
-                </p>
-              </div>
-            ))}
+            {subjectsLoading ? (
+              [1, 2, 3, 4, 5, 6].map((i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs animate-pulse space-y-3"
+                >
+                  <div className="h-5 w-3/4 bg-slate-200 rounded" />
+                  <div className="h-3 w-full bg-slate-100 rounded" />
+                  <div className="h-3 w-2/3 bg-slate-100 rounded" />
+                </div>
+              ))
+            ) : (
+              (subjectsList.length > 0
+                ? subjectsList.map((s) => ({
+                    id: s._id,
+                    name: s.name,
+                    desc: s.description || 'Official university curriculum question papers and verified study guides.',
+                  }))
+                : CURATED_SUBJECTS
+              ).map((subj) => (
+                <div
+                  key={subj.id || subj.name}
+                  onClick={() => {
+                    if (subj.id) {
+                      updateFilters({ subject: subj.id });
+                    } else {
+                      updateFilters({ search: subj.name });
+                    }
+                  }}
+                  className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs hover:border-slate-300 hover:shadow-sm cursor-pointer transition group"
+                >
+                  <h3 className="text-base font-bold text-slate-900 group-hover:text-[#127177] transition mb-1.5">
+                    {subj.name}
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                    {subj.desc}
+                  </p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
