@@ -471,7 +471,7 @@ export default function AdminDashboardPage() {
           <div className="relative w-14 h-14 rounded-2xl overflow-hidden border-2 border-teal-500/40 bg-white flex-shrink-0 shadow-md">
             <Image
               src="/logo.jpg"
-              alt="MLTify Logo"
+              alt="MLTify Point Logo"
               width={56}
               height={56}
               className="object-cover"
@@ -479,7 +479,7 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl sm:text-2xl font-black">MLTify Academic CMS</span>
+              <span className="text-xl sm:text-2xl font-black">MLTify Point Academic CMS</span>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-teal-500/20 text-teal-300 border border-teal-400/30">
                 Admin Console
               </span>

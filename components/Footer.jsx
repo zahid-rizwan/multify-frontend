@@ -4,42 +4,37 @@ import Image from 'next/image';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0D1520] text-slate-400 pt-16 pb-12 border-t border-white/5 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Brand header */}
-        <div className="mb-12">
-          {/* MLTify Logo & Name */}
-          <div className="flex items-center gap-3">
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden border border-white/20 bg-white p-0.5 shadow-sm flex-shrink-0">
-              <Image
-                src="/logo.jpg"
-                alt="MLTify Logo"
-                width={40}
-                height={40}
-                className="object-cover rounded-lg w-full h-full"
-              />
+    <footer className="bg-[#0B1320] text-slate-400 pt-16 pb-10 border-t border-slate-800/80">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+          {/* Column 1: Brand */}
+          <div className="space-y-4">
+            <Link href="/" className="inline-flex items-center gap-3 group">
+              <div className="w-9 h-9 rounded-xl overflow-hidden border border-teal-500/30 bg-white p-0.5 shadow-sm group-hover:scale-105 transition-transform flex-shrink-0">
+                <Image
+                  src="/logo.jpg"
+                  alt="MLTify Point"
+                  width={36}
+                  height={36}
+                  className="object-cover rounded-[10px]"
+                />
+              </div>
+              <span className="text-xl font-bold tracking-tight text-white">
+                MLT<span className="text-teal-400">ify</span> Point
+              </span>
+            </Link>
+            <div className="space-y-1 text-sm text-slate-400 leading-relaxed">
+              <p className="text-slate-300 font-medium">Knowledge That Shapes Care.</p>
+              <p>Thoughtfully organized learning for every medical journey.</p>
             </div>
-            <span className="font-black tracking-tight text-xl text-white">
-              MLT<span className="text-[#4EBEB8]">ify</span>
-            </span>
           </div>
 
-          <p className="mt-4 text-sm font-medium text-slate-300">
-            Knowledge That Shapes Care.
-          </p>
-          <p className="text-xs text-slate-400 max-w-sm mt-0.5 leading-relaxed">
-            Thoughtfully organized learning for every medical journey.
-          </p>
-        </div>
-
-        {/* Links Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 sm:gap-12 mb-16">
-          {/* Column 1: Navigate */}
+          {/* Column 2: Navigate */}
           <div>
-            <h4 className="text-xs font-bold text-white tracking-wider mb-4">
+            <h4 className="text-sm font-semibold text-white tracking-wide mb-4">
               Navigate
             </h4>
-            <ul className="space-y-3 text-xs">
+            <ul className="space-y-2.5 text-sm text-slate-400">
               <li>
                 <Link href="/" className="hover:text-white transition">
                   Home
@@ -56,19 +51,19 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/subjects" className="hover:text-white transition">
+                <a href="mailto:contact@mltifypoint.com" className="hover:text-white transition">
                   Contact
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
 
-          {/* Column 2: Resources */}
+          {/* Column 3: Resources */}
           <div>
-            <h4 className="text-xs font-bold text-white tracking-wider mb-4">
+            <h4 className="text-sm font-semibold text-white tracking-wide mb-4">
               Resources
             </h4>
-            <ul className="space-y-3 text-xs">
+            <ul className="space-y-2.5 text-sm text-slate-400">
               <li>
                 <Link href="/resources?docType=NOTE" className="hover:text-white transition">
                   Study Notes
@@ -80,42 +75,42 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/resources?docType=REFERENCE" className="hover:text-white transition">
+                <Link href="/resources" className="hover:text-white transition">
                   Reference Materials
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Legal */}
-          <div className="col-span-2 sm:col-span-1">
-            <h4 className="text-xs font-bold text-white tracking-wider mb-4">
+          {/* Column 4: Legal */}
+          <div>
+            <h4 className="text-sm font-semibold text-white tracking-wide mb-4">
               Legal
             </h4>
-            <ul className="space-y-3 text-xs">
+            <ul className="space-y-2.5 text-sm text-slate-400">
               <li>
-                <span className="hover:text-white transition cursor-pointer">
+                <Link href="/privacy" className="hover:text-white transition">
                   Privacy Policy
-                </span>
+                </Link>
               </li>
               <li>
-                <span className="hover:text-white transition cursor-pointer">
+                <Link href="/terms" className="hover:text-white transition">
                   Terms & Conditions
-                </span>
+                </Link>
               </li>
               <li>
-                <span className="hover:text-white transition cursor-pointer">
+                <Link href="/disclaimer" className="hover:text-white transition">
                   Educational Disclaimer
-                </span>
+                </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom Bar without question mark */}
-        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
-          <p>© {new Date().getFullYear()} MLTify. Educational resources for demonstration.</p>
-          <p className="text-slate-400 font-medium">Designed for curious minds in healthcare.</p>
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+          <p>© 2025 MLTify Point. Educational resources for demonstration.</p>
+          <p className="text-slate-400">Designed for curious minds in healthcare.</p>
         </div>
       </div>
     </footer>
